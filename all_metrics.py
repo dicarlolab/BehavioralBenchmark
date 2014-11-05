@@ -20,10 +20,6 @@ large_cm_metrics = ['off_diagonal'] # Requirements: square, larger than 3*3
 rm_metrics = ['row_normalized_first_column', 'raw'] # Requirements, none
 
 
-#dataset
-#task
-#response_grain
-
 
 IC_collection = pm.MongoClient(port=22334)['BehavioralBenchmarkResults']['InternalConsistency']
 
