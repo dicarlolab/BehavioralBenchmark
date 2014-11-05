@@ -9,6 +9,7 @@ import cPickle
 import scipy.stats
 import pymongo as pm
 import hashlib
+from utils import SONify
 
 
 small_cm_metrics = ['dp_standard',
@@ -35,13 +36,13 @@ def cache_composite_individual_self_consistency_all_metrics(trials, image_proper
     :param response_property: What property of the response chosen to build response matrices out of
     """
     #Check if results already exist in the database
-    trials_hash = hashlib.sha1(trials).hexdigest
+    trials_hash = hashlib.sha1(str(trials)).hexdigest()
     query = {'trials_hash': trials_hash, 'image_property': image_property, 'response_property': response_property,
              'consistency_type': 'composite_individual'}
     num_entries = IC_collection.find(query).count()
     if num_entries == 0:
         results = composite_individual_self_consistency_all_metrics(trials, image_property, response_property)
-        IC_collection.insert(results)
+        IC_collection.insert(SONify(results))
     if num_entries == 1:
         return IC_collection.find_one(query)
     else:
@@ -55,7 +56,6 @@ def composite_individual_self_consistency_all_metrics(trials, image_property, re
     # Get response matrices
     RMs = []
     trials_hash = hashlib.sha1(str(trials)).hexdigest()
-    if (image_property in trials.dtype.names) and (response_property in trials.dtype.names)
     for trial_array in trials:
         response_matrix, _, _ = CM.get_response_matrix(trial_array, image_property,
                                                  response_property, condition=None,

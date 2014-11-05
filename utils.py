@@ -2,19 +2,12 @@ __author__ = 'ardila'
 import scipy
 
 import numpy as np
-import copy
 import dldata.human_data.confusion_matrices as CM
-from dldata.metrics.utils import metrics_from_confusion_mat, dprime_bangmetric, symmetrize_confusion_matrix,performances_bangmetric, row_normalized_first_column, population_averaged_raw, RM_metrics
-import os
-from joblib import Parallel, delayed
-import itertools
-import cPickle
+from dldata.metrics.utils import get_rm_metric
 import scipy.stats
-
-
-
-
-
+from bson import ObjectId
+import datetime
+import collections
 
 
 
@@ -26,8 +19,12 @@ def rms_spearman_consistency(RMs1, RMs2, metric, metrickwargs):
     :param metric: A response matrix metric which is registered in the method RM_metrics
     :param metrickwargs: keyword arguments for the metric
     """
-    m1 = RM_metrics(RMs1, metric, metrickwargs)
-    m2 = RM_metrics(RMs2, metric, metrickwargs)
+    metric_func, kwargs = get_rm_metric(metric, kwargs)
+    m1 = []
+    m2 = []
+    for M1, M2 in zip(RMs1, RMs2):
+        m1.extend(metric_func(M1, **kwargs))
+        m2.extend(metric_func(M2, **kwargs))
     return scipy.stats.spearmanr(np.ravel(m1), np.ravel(m2))[0]
 
 
@@ -44,7 +41,41 @@ def trial_split_half_RMs(trials, image_property, response_property, rng):
     return RM1, RM2
 
 
-
+def SONify(arg, memo=None):
+    if memo is None:
+        memo = {}
+    if id(arg) in memo:
+        rval = memo[id(arg)]
+    if isinstance(arg, ObjectId):
+        rval = arg
+    elif isinstance(arg, datetime.datetime):
+        rval = arg
+    elif isinstance(arg, np.float):
+        rval = float(arg)
+    elif isinstance(arg, np.int):
+        rval = int(arg)
+    elif isinstance(arg, (list, tuple)):
+        rval = type(arg)([SONify(ai, memo) for ai in arg])
+    elif isinstance(arg, collections.OrderedDict):
+        rval = collections.OrderedDict([(SONify(k, memo), SONify(v, memo))
+            for k, v in arg.items()])
+    elif isinstance(arg, dict):
+        rval = dict([(SONify(k, memo), SONify(v, memo))
+            for k, v in arg.items()])
+    elif isinstance(arg, (basestring, float, int, type(None))):
+        rval = arg
+    elif isinstance(arg, np.ndarray):
+        if arg.ndim == 0:
+            rval = SONify(arg.sum())
+        else:
+            rval = map(SONify, arg) # N.B. memo None
+    # -- put this after ndarray because ndarray not hashable
+    elif arg in (True, False):
+        rval = int(arg)
+    else:
+        raise TypeError('SONify', arg)
+    memo[id(rval)] = rval
+    return rval
 
 # def evaluate_task():
 #

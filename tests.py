@@ -2,6 +2,7 @@ __author__ = 'ardila'
 import dldata.human_data.confusion_matrices as CM
 import all_metrics
 import dldata.metrics.utils as u
+import os
 
 def test_all_metrics():
     trials = CM.get_data('hvm_basic_categorization_new', 'category')
@@ -16,5 +17,9 @@ def test_off_diagonal():
     print u.symmetrize_confusion_matrix(RM, take='off_diagonal')
     #print u.metrics_from_confusion_mat([RM], metric='off_diagonal')
 
+def test_benchmark_script():
+    path = os.path.dirname(__file__)
+    script_location = os.path.join(path, 'benchmark.py hvm_basic_categorization')
+    os.system('python '+script_location)
 
-test_all_metrics()
+test_benchmark_script()

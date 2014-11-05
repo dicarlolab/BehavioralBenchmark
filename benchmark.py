@@ -16,9 +16,10 @@ tasks = [(u'hvm_subordinate_identification_Chairs', 'obj', None),
          (u'hvm_subordinate_identification_Planes', 'obj', None),
          (u'hvm_subordinate_identification_Tables', 'obj', None),
          ('hvm_basic_categorization_new', 'category', None),
-         ('hvm_figure_ground_2', 'dot_on', None)].extend(
+         ('hvm_figure_ground_2', 'dot_on', None)]
+tasks.extend(
         [('stratified_8_ways', 'synset', {'eight_way_ind': i}) for i in range(39)])
-
+print tasks
 
 # Evaluate composite self consistency for HvM basic categorization, all properties and metrics
 task_sets= {'hvm_basic_categorization': [tasks[9]]}
@@ -28,8 +29,13 @@ task_set = task_sets[sys.argv[1]]
 trials = [CM.get_data(collection, task_category, condition) for collection, task_category, condition in task_set]
 
 def get_valid_properties(trials):
-    ip  = set(trials.dtype.names) and set(image_properties)
-    rp = set(trials.dtype.names) and set(response_properties)
+    ips = []
+    rps = []
+    for trial_array in trials:
+        ips.append(set(trial_array.dtype.names) and set(image_properties))
+        rps.append(set(trial_array.dtype.names) and set(response_properties))
+    ip = set.intersection(*ips)
+    rp = set.intersection(*rps)
     return ip, rp
 
 ips, rps = get_valid_properties(trials)
