@@ -19,7 +19,7 @@ def rms_spearman_consistency(RMs1, RMs2, metric, metrickwargs):
     :param metric: A response matrix metric which is registered in the method RM_metrics
     :param metrickwargs: keyword arguments for the metric
     """
-    metric_func, kwargs = get_rm_metric(metric, kwargs)
+    metric_func, kwargs = get_rm_metric(metric, metrickwargs)
     m1 = []
     m2 = []
     for M1, M2 in zip(RMs1, RMs2):

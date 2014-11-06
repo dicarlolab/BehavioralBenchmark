@@ -19,28 +19,37 @@ tasks = [(u'hvm_subordinate_identification_Chairs', 'obj', None),
          ('hvm_figure_ground_2', 'dot_on', None)]
 tasks.extend(
         [('stratified_8_ways', 'synset', {'eight_way_ind': i}) for i in range(39)])
-print tasks
 
 # Evaluate composite self consistency for HvM basic categorization, all properties and metrics
-task_sets= {'hvm_basic_categorization': [tasks[9]]}
+task_sets = {'hvm_basic_categorization': [tasks[8]],
+             'hvm_subordinate_tasks': tasks[:8],
+             'hvm_all_categorization_tasks': tasks[:9],
+             'hvm_figure_ground': [tasks[9]],
+             'imagenet_8ways': tasks[10:]}
 
-task_set = task_sets[sys.argv[1]]
+#task_set = task_sets[sys.argv[1]]
 
-trials = [CM.get_data(collection, task_category, condition) for collection, task_category, condition in task_set]
+def benchmark(task_set, parallel=True):
+    task_set = task_sets[task_set]
+    trials = [CM.get_data(collection, task_category, condition) for collection, task_category, condition in task_set]
 
-def get_valid_properties(trials):
-    ips = []
-    rps = []
-    for trial_array in trials:
-        ips.append(set(trial_array.dtype.names) and set(image_properties))
-        rps.append(set(trial_array.dtype.names) and set(response_properties))
-    ip = set.intersection(*ips)
-    rp = set.intersection(*rps)
-    return ip, rp
+    def get_valid_properties(trials):
+        ips = []
+        rps = []
+        for trial_array in trials:
+            ips.append(set(trial_array.dtype.names) and set(image_properties))
+            rps.append(set(trial_array.dtype.names) and set(response_properties))
+        ip = set.intersection(*ips)
+        rp = set.intersection(*rps)
+        return ip, rp
 
-ips, rps = get_valid_properties(trials)
-Parallel(verbose=700, n_jobs=10)\
-    (delayed(cache_composite_individual_self_consistency_all_metrics)\
-         (trials, image_property, response_property)\
-     for image_property, response_property in itertools.product(image_properties, response_properties))
+    ips, rps = get_valid_properties(trials)
+    if parallel:
+        Parallel(verbose=700, n_jobs=10)\
+            (delayed(cache_composite_individual_self_consistency_all_metrics)\
+                 (trials, image_property, response_property)\
+             for image_property, response_property in itertools.product(ips, rps))
+    else:
+        [cache_composite_individual_self_consistency_all_metrics(trials, image_property, response_property)
+             for image_property, response_property in itertools.product(ips, rps)]
 

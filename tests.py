@@ -3,6 +3,7 @@ import dldata.human_data.confusion_matrices as CM
 import all_metrics
 import dldata.metrics.utils as u
 import os
+from benchmark import benchmark
 
 def test_all_metrics():
     trials = CM.get_data('hvm_basic_categorization_new', 'category')
@@ -17,9 +18,11 @@ def test_off_diagonal():
     print u.symmetrize_confusion_matrix(RM, take='off_diagonal')
     #print u.metrics_from_confusion_mat([RM], metric='off_diagonal')
 
-def test_benchmark_script():
-    path = os.path.dirname(__file__)
-    script_location = os.path.join(path, 'benchmark.py hvm_basic_categorization')
-    os.system('python '+script_location)
+def test_benchmark():
+    benchmark('hvm_basic_categorization', parallel=True)
+    benchmark('hvm_subordinate_tasks', parallel=True)
+    benchmark('hvm_all_categorization_tasks', parallel=True)
+    benchmark('hvm_figure_ground', parallel=True)
 
-test_benchmark_script()
+
+test_benchmark()

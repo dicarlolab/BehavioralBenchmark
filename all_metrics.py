@@ -1,7 +1,7 @@
 import numpy as np
 import copy
 import dldata.human_data.confusion_matrices as CM
-from dldata.metrics.utils import metrics_from_confusion_mat, dprime_bangmetric, symmetrize_confusion_matrix,performances_bangmetric, row_normalized_first_column
+from dldata.metrics.utils import metrics_from_confusion_mat
 import os
 from joblib import Parallel, delayed
 import itertools
@@ -18,7 +18,7 @@ small_cm_metrics = ['dp_standard',
                     'symmetrized_raw',
                     'diagonal'] # Requirements: square
 large_cm_metrics = ['off_diagonal'] # Requirements: square, larger than 3*3
-rm_metrics = ['row_normalized_first_column', 'raw'] # Requirements, none
+rm_metrics = ['column_normalized_first_row', 'raw'] # Requirements, none
 
 
 
@@ -43,7 +43,7 @@ def cache_composite_individual_self_consistency_all_metrics(trials, image_proper
     if num_entries == 0:
         results = composite_individual_self_consistency_all_metrics(trials, image_property, response_property)
         IC_collection.insert(SONify(results))
-    if num_entries == 1:
+    elif num_entries == 1:
         return IC_collection.find_one(query)
     else:
         raise ValueError, 'Cache error! check entries matching query %s' % query
