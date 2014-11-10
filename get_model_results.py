@@ -11,7 +11,6 @@ dataset = hvm.HvMWithDiscfade()
 
 DB = pm.MongoClient(port=22334)['BehavioralBenchmark']
 
-
 def store_subordinate_results(F, obj1, obj2, collname):
     coll = DB[collname]
     two_way_type = '_'.join(sorted(obj1, obj2))
@@ -73,7 +72,7 @@ def store_basic_results(F, cat1, cat2, collname):
     else:
         raise ValueError, 'More than one precomputed result found for %s'%two_w
 
-def get_nyu_basic_tasks():
+def get_nyu_basic_results():
     F = dataset.get_features({u'crop': None,
                           u'dtype': u'float32',
                           u'mask': None,
