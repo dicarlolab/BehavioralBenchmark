@@ -18,7 +18,7 @@ for d in data:
 data = data.addcols(two_way_types, 'two_way_type')
 
 
-def trial_split_half_consistency(trials, metric, kwargs, split_field, meta_field, bstrapiter = 900, rng = None, spearman_brown_correction=True):
+def trial_split_half_consistency(trials, metric, kwargs, split_field, meta_field, bstrapiter = 2, rng = None, spearman_brown_correction=True):
     metric_func, kwargs = u.get_rm_metric(metric, kwargs)
     if rng is None:
         rng = np.random.RandomState(0)
@@ -37,10 +37,12 @@ def trial_split_half_consistency(trials, metric, kwargs, split_field, meta_field
             m1.extend( metric_func(CM1, **kwargs))
             m2.extend( metric_func(CM2, **kwargs))
         IC, _ = scipy.stats.spearmanr(m1,m2)
-        ICs.append(spearman_brown_correction(IC))
+        if spearman_brown_correction:
+            IC = spearman_brown_correct(IC)
+        ICs.append(IC)
     return np.mean(ICs), np.std(ICs)
 
-def spearman_brown_correction(IC):
+def spearman_brown_correct(IC):
     return 2*IC/(1+IC)
 
 def get_cms(data, split_field, meta_field):
