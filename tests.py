@@ -4,6 +4,7 @@ import all_metrics
 import dldata.metrics.utils as u
 import os
 from benchmark import benchmark
+from hvm_basic_2way_consistency import standard_dprime_IC
 
 def test_all_metrics():
     trials = CM.get_data('hvm_basic_categorization_new', 'category')
@@ -24,5 +25,8 @@ def test_benchmark():
     benchmark('hvm_all_categorization_tasks', parallel=True)
     benchmark('hvm_figure_ground', parallel=True)
 
+def test_hvm_basic_2way_consistency():
+    standard_dprime_IC()
 
-test_benchmark()
+
+test_hvm_basic_2way_consistency()
