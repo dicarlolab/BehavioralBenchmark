@@ -82,7 +82,7 @@ def get_nyu_basic_results():
                          ObjectId('542927872c39ac23120db840'),
                          u'fc6')[:]
     collname = 'NYU_Model_Results'
-    for cat1, cat2 in itertools.combinations(np.unique(dataset.meta['category'])):
+    for cat1, cat2 in itertools.combinations(np.unique(dataset.meta['category']), 2):
         store_basic_results(F, cat1, cat2, collname)
 
 def get_nyu_subordinate_results():
@@ -95,5 +95,5 @@ def get_nyu_subordinate_results():
                          ObjectId('542927872c39ac23120db840'),
                          u'fc6')[:]
     collname = 'NYU_Model_Results'
-    for obj1, obj2 in itertools.combinations(np.unique(dataset.meta['obj'])):
+    for obj1, obj2 in itertools.combinations(np.unique(dataset.meta['obj']), 2):
         store_basic_results(F, obj1, obj2, collname)
