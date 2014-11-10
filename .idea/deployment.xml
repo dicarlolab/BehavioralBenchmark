@@ -1,11 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="Always" serverName="mh17.mit.edu">
+  <component name="PublishConfigData" autoUpload="Always" serverName="openmind">
     <serverData>
       <paths name="mh17.mit.edu">
         <serverdata>
           <mappings>
             <mapping deploy="/mindhive/dicarlolab/u/ardila/virtual_environments/default/src/BehavioralBenchmark" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="openmind">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/ardila/src/BehavioralBenchmark" local="$PROJECT_DIR$" web="" />
           </mappings>
         </serverdata>
       </paths>

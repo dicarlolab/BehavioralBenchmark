@@ -13,7 +13,7 @@ DB = pm.MongoClient(port=22334)['BehavioralBenchmark']
 
 def store_subordinate_results(F, obj1, obj2, collname):
     coll = DB[collname]
-    two_way_type = '_'.join(sorted(obj1, obj2))
+    two_way_type = '_'.join(sorted([obj1, obj2]))
     print two_way_type
     query = {'two_way_type': two_way_type}
     if coll.find(query).count() == 1:
@@ -44,7 +44,7 @@ def store_subordinate_results(F, obj1, obj2, collname):
 
 def store_basic_results(F, cat1, cat2, collname):
     coll = DB[collname]
-    two_way_type = '_'.join(sorted(cat1, cat2))
+    two_way_type = '_'.join(sorted([cat1, cat2]))
     query = {'two_way_type': two_way_type}
     if coll.find(query).count() == 1:
         return coll.find_one(query)['results']
@@ -70,7 +70,7 @@ def store_basic_results(F, cat1, cat2, collname):
         doc = utils.SONify({'two_way_type': two_way_type, 'results': results})
         coll.insert(doc)
     else:
-        raise ValueError, 'More than one precomputed result found for %s'%two_w
+        raise ValueError, 'More than one precomputed result found for %s'%two_way_type
 
 def get_nyu_basic_results():
     F = dataset.get_features({u'crop': None,
