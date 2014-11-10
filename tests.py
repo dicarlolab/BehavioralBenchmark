@@ -5,6 +5,7 @@ import dldata.metrics.utils as u
 import os
 from benchmark import benchmark
 from hvm_basic_2way_consistency import standard_dprime_IC
+from get_model_results import get_nyu_basic_tasks
 
 def test_all_metrics():
     trials = CM.get_data('hvm_basic_categorization_new', 'category')
@@ -28,5 +29,7 @@ def test_benchmark():
 def test_hvm_basic_2way_consistency():
     standard_dprime_IC()
 
+def test_nyu_model_results():
+    get_nyu_basic_tasks()
 
-test_hvm_basic_2way_consistency()
+test_nyu_model_results()

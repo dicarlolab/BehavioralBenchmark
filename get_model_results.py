@@ -1,0 +1,57 @@
+__author__ = 'ardila'
+import dldata.stimulus_sets.hvm as hvm
+from bson import ObjectId
+import itertools
+import numpy as np
+import dldata.metrics.utils as u
+import pymongo as pm
+import utils as utils
+
+dataset = hvm.HvMWithDiscfade()
+
+DB = pm.MongoClient(port=22334)['BehavioralBenchmark']
+
+
+def store_basic_results(F, cat1, cat2, collname):
+    coll = DB[collname]
+    two_way_type = '_'.join(sorted(cat1, cat2))
+    print two_way_type
+    query = {'two_way_type': two_way_type}
+    if coll.find(query).count() == 1:
+        pass
+    if coll.find(query).count() == 0:
+        eval_config = {
+            'labelfunc': 'category',
+            'metric_screen': 'classifier',
+            'metric_kwargs':
+                {'model_type': 'svm.LinearSVC', 'model_kwargs': {
+                    # 'C': 5e4, 'penalty': 'l2','loss': 'l2',
+                    'GridSearchCV_params': {'C': np.logspace(-5, 4, 22)},
+                    'GridSearchCV_kwargs': {'n_jobs': 22},
+                    'class_weight': 'auto'
+                }},
+            'npc_test': 19,
+            'npc_train': 611,
+            'npc_validate': 0,
+            'num_splits': 50,
+            'split_by': 'category',
+            'test_q': {'category': [cat1, cat2], 'var': 'V6'},
+            'train_q': {'category': [cat1, cat2]}}
+        results = u.compute_metric_base(F, dataset.meta, eval_config)
+        doc = utils.SONify({'two_way_type': two_way_type, 'results': results})
+        coll.insert(doc)
+    else:
+        raise ValueError, 'More than one precomputed result found for %s'%two_way_type
+
+def get_nyu_basic_tasks():
+    F = dataset.get_features({u'crop': None,
+                          u'dtype': u'float32',
+                          u'mask': None,
+                          u'mode': u'RGB',
+                          u'normalize': False,
+                          u'resize_to': [256, 256]},
+                         ObjectId('542927872c39ac23120db840'),
+                         u'fc6')[:]
+    collname = 'NYU_Model_Results'
+    for cat1, cat2 in itertools.combinations(np.unique(dataset.meta['category'])):
+        store_basic_results(F, cat1, cat2, collname)
