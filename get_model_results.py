@@ -98,9 +98,19 @@ def get_nyu_subordinate_results():
                          u'fc6')[:]
     collname = 'NYU_Model_Results'
     for obj1, obj2 in itertools.combinations(np.unique(dataset.meta['obj']), 2):
-        store_basic_results(F, obj1, obj2, collname)
-coll = 5
-for type in coll.distinct('two_way_type'):
-    if coll.find({'two_way_type': type}).count() > 1:
-        _id = coll.find_one({'two_way_type': type})['_id']
-        coll.remove({'_id':_id})
+        store_subordinate_results(F, obj1, obj2, collname)
+
+
+
+
+def deduplicate(coll):
+    for t_type in coll.distinct('two_way_type'):
+        if coll.find({'two_way_type': t_type}).count() > 1:
+            _id = coll.find_one({'two_way_type': t_type})['_id']
+            coll.remove({'_id':_id})
+
+
+#for two_way_type in
+#results = coll.find_one({'two_way_type': two_way_type})
+#for r in results['split_results']:
+
