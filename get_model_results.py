@@ -18,7 +18,7 @@ def store_subordinate_results(F, obj1, obj2, collname):
     query = {'two_way_type': two_way_type}
     if coll.find(query).count() == 1:
         pass
-    if coll.find(query).count() == 0:
+    elif coll.find(query).count() == 0:
         eval_config = {
             'labelfunc': 'obj',
             'metric_screen': 'classifier',
@@ -49,7 +49,7 @@ def store_basic_results(F, cat1, cat2, collname):
     query = {'two_way_type': two_way_type}
     if coll.find(query).count() == 1:
         return coll.find_one(query)['results']
-    if coll.find(query).count() == 0:
+    elif coll.find(query).count() == 0:
         eval_config = {
             'labelfunc': 'category',
             'metric_screen': 'classifier',
