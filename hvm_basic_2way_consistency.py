@@ -4,18 +4,7 @@ import numpy as np
 import dldata.metrics.utils as u
 import scipy.stats
 
-meta_field = 'category'
-data = cm.get_data('hvm_basic_2ways', meta_field, trial_data=['ImgData'])
 
-data = data[data['trialNum']>10]
-
-two_way_types = []
-for d in data:
-    choice1 = d['ImgData']['Test'][0][meta_field]
-    choice2 = d['ImgData']['Test'][1][meta_field]
-    two_way_types.append('_'.join(sorted([choice1, choice2])))
-
-data = data.addcols(two_way_types, 'two_way_type')
 
 
 def trial_split_half_consistency(trials, metric, kwargs, split_field, meta_field, bstrapiter = 2, rng = None, spearman_brown_correction=True):
@@ -52,7 +41,36 @@ def get_cms(data, split_field, meta_field):
         CMs.append(cm.get_confusion_matrix(rel_data, meta_field)[0])
     return CMs
 
-def standard_dprime_IC():
+def standard_basic_dprime_IC():
+    meta_field = 'category'
+    data = cm.get_data('hvm_basic_2ways',
+                       meta_field, trial_data=['ImgData'])
+    data = data[data['trialNum']>10]
+    two_way_types = []
+    for d in data:
+        choice1 = d['ImgData']['Test'][0][meta_field]
+        choice2 = d['ImgData']['Test'][1][meta_field]
+        two_way_types.append('_'.join(sorted([choice1, choice2])))
+
+    data = data.addcols(two_way_types, 'two_way_type')
     print trial_split_half_consistency(data, 'dp_standard', kwargs={},
-                                   split_field='two_way_type',
-                                   meta_field='category')
+                                       split_field='two_way_type',
+                                       meta_field='category')
+
+def standard_subordinate_dprime_IC():
+    meta_field = 'obj'
+    data = cm.get_data('hvm_subordinate_2ways',
+                       meta_field, trial_data=['ImgData'])
+    data = data[data['trialNum']>10]
+    two_way_types = []
+    for d in data:
+        choice1 = d['ImgData']['Test'][0][meta_field]
+        choice2 = d['ImgData']['Test'][1][meta_field]
+        two_way_types.append('_'.join(sorted([choice1, choice2])))
+
+    data = data.addcols(two_way_types, 'two_way_type')
+    print trial_split_half_consistency(data, 'dp_standard', kwargs={},
+                                       split_field='two_way_type',
+                                       meta_field=meta_field)
+
+
