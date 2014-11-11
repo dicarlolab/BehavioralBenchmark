@@ -40,7 +40,8 @@ def store_subordinate_results(F, obj1, obj2, collname):
         doc = utils.SONify({'two_way_type': two_way_type, 'results': results})
         coll.insert(doc)
     else:
-        raise ValueError, 'More than one precomputed result found for %s'%two_way_type
+        print 'More than one precomputed result found for %s'%two_way_type
+        raise ValueError
 
 def store_basic_results(F, cat1, cat2, collname):
     coll = DB[collname]
@@ -70,7 +71,8 @@ def store_basic_results(F, cat1, cat2, collname):
         doc = utils.SONify({'two_way_type': two_way_type, 'results': results})
         coll.insert(doc)
     else:
-        raise ValueError, 'More than one precomputed result found for %s'%two_way_type
+        print 'More than one precomputed result found for %s'%two_way_type
+        raise ValueError
 
 def get_nyu_basic_results():
     F = dataset.get_features({u'crop': None,
