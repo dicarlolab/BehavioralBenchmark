@@ -4,7 +4,7 @@ import all_metrics
 import dldata.metrics.utils as u
 import os
 from benchmark import benchmark
-from hvm_basic_2way_consistency import standard_subordinate_dprime_IC
+from hvm_2way_consistency import standard_subordinate_dprime_IC
 from get_model_results import get_nyu_basic_results, get_nyu_subordinate_results
 
 def test_all_metrics():
