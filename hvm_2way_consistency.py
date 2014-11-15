@@ -48,8 +48,8 @@ def get_cms(data, split_field, meta_field, split_field_vals=None):
 
 
 def get_basic_human_data():
-    meta_field = 'obj'
-    data = cm.get_data('hvm_subordinate_2ways',
+    meta_field = 'category'
+    data = cm.get_data('hvm_basic_2ways',
                        meta_field, trial_data=['ImgData'])
     data = data[data['trialNum']>10]
     two_way_types = []
@@ -111,15 +111,6 @@ def trial_split_consistency(data1, data2, metric, split_field, meta_field, kwarg
     consistencies = R/np.array(denominators)
     return np.mean(consistencies), np.std(consistencies)
 
-def add_type_tag(coll):
-    sub_two_way_types = np.unique(get_subordinate_human_data()['two_way_type'])
-    basic_two_way_types = np.unique(get_basic_human_data()['two_way_type'])
-    for entry in coll.find():
-        if entry['two_way_type'] in basic_two_way_types:
-            type_tag = 'basic'
-            coll.update({'_id':entry['_id']}, {'$set': {'type_tag': type_tag}})
-        elif entry['two_way_type'] in sub_two_way_types:
-            type_tag = 'subordinate'
-            coll.update({'_id':entry['_id']}, {'$set': {'type_tag': type_tag}})
+
 
 

@@ -6,6 +6,7 @@ import numpy as np
 import dldata.metrics.utils as u
 import pymongo as pm
 import utils as utils
+import hvm_2way_consistency as h
 
 dataset = hvm.HvMWithDiscfade()
 
@@ -39,7 +40,9 @@ def store_subordinate_results(F, obj1, obj2, collname):
             'train_q': {'obj': [obj1, obj2]}}
         results = u.compute_metric_base(F, dataset.meta, eval_config,
                                         return_splits=True)
-        doc = utils.SONify({'two_way_type': two_way_type, 'results': results})
+        doc = utils.SONify({'two_way_type': two_way_type,
+                            'results': results,
+                            'type_tag': 'subordinate'})
         coll.insert(doc)
     else:
         print 'More than one precomputed result found for %s' % two_way_type
@@ -73,7 +76,9 @@ def store_basic_results(F, cat1, cat2, collname):
             'train_q': {'category': [cat1, cat2]}}
         results = u.compute_metric_base(F, dataset.meta, eval_config,
                                         return_splits=True)
-        doc = utils.SONify({'two_way_type': two_way_type, 'results': results})
+        doc = utils.SONify({'two_way_type': two_way_type,
+                            'results': results,
+                            'type_tag': 'basic'})
         coll.insert(doc)
     else:
         print 'More than one precomputed result found for %s' % two_way_type
@@ -113,6 +118,46 @@ def deduplicate(coll):
         if coll.find({'two_way_type': t_type}).count() > 1:
             _id = coll.find_one({'two_way_type': t_type})['_id']
             coll.remove({'_id': _id})
+
+
+def add_type_tag(coll):
+    basic_two_way_types = np.unique(h.get_basic_human_data()['two_way_type'])
+    sub_two_way_types = np.unique(h.get_subordinate_human_data()['two_way_type'])
+    for entry in coll.find():
+        if entry['two_way_type'] in basic_two_way_types:
+            type_tag = 'basic'
+            coll.update({'_id':entry['_id']}, {'$set': {'type_tag': type_tag}})
+        elif entry['two_way_type'] in sub_two_way_types:
+            type_tag = 'subordinate'
+            coll.update({'_id':entry['_id']}, {'$set': {'type_tag': type_tag}})
+
+
+def subordinate_trials(coll):
+    dataset = hvm.HvMWithDiscfade()
+    meta = dataset.meta
+    data = coll.find_one({'type_tag': 'subordinate'})
+    for entry in data:
+        for i, split in enumerate(entry['results']['splits'][0]):
+            correct = ~np.array(entry['results']['split_results'][i]['test_errors'])
+            Response = entry['results']['split_results'][i]['test_errors']
+            meta = meta[split['test']]
+            two_way_type = [entry['two_way_type']]*meta.shape[0]
+            meta = meta.addcols([correct, Response, two_way_type],
+                                names=['correct', 'Response', 'two_way_type'])
+
+
+def basic_trials(coll):
+    dataset = hvm.HvMWithDiscfade()
+    meta = dataset.meta
+    data = coll.find({'type_tag': 'basic'})
+    for entry in data:
+        for i, split in enumerate(entry['results']['splits'][0]):
+            correct = ~np.array(entry['results']['split_results'][i]['test_errors'])
+            Response = entry['results']['split_results'][i]['test_errors']
+            meta = meta[split['test']]
+            two_way_type = [entry['two_way_type']]*meta.shape[0]
+            meta = meta.addcols([correct, Response, two_way_type],
+                                names=['correct', 'Response', 'two_way_type'])
 
 
 # for two_way_type in
