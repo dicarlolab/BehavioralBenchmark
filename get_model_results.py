@@ -7,7 +7,7 @@ import dldata.metrics.utils as u
 import pymongo as pm
 import utils as utils
 import hvm_2way_consistency as h
-
+import tabular as tb
 dataset = hvm.HvMWithDiscfade()
 
 DB = pm.MongoClient(port=22334)['BehavioralBenchmark']
@@ -146,19 +146,22 @@ def subordinate_trials(coll):
                                 names=['correct', 'Response', 'two_way_type'])
 
 
+NYU_COLL = pm.MongoClient(port=22334)['BehavioralBenchmark']['NYU_Model_Results']
 def basic_trials(coll):
     dataset = hvm.HvMWithDiscfade()
-    meta = dataset.meta
     data = coll.find({'type_tag': 'basic'})
+    trials = []
     for entry in data:
         for i, split in enumerate(entry['results']['splits'][0]):
-            correct = ~np.array(entry['results']['split_results'][i]['test_errors'])
-            Response = entry['results']['split_results'][i]['test_errors']
-            meta = meta[split['test']]
+            split_results = entry['results']['split_results'][i]
+            correct = np.array(split_results['test_errors'][0])==0
+            Response = split_results['test_prediction']
+            meta = dataset.meta[split['test']]
             two_way_type = [entry['two_way_type']]*meta.shape[0]
-            meta = meta.addcols([correct, Response, two_way_type],
-                                names=['correct', 'Response', 'two_way_type'])
-
+            worker_ids = [i]*meta.shape[0]  # Modeling subjects as splits
+            trials.append(meta.addcols([correct, Response, two_way_type, worker_ids],
+                                names=['correct', 'Response', 'two_way_type', 'WorkerId']))
+    return tb.tab_rowstack(trials)
 
 # for two_way_type in
 # results = coll.find_one({'two_way_type': two_way_type})

@@ -4,9 +4,8 @@ import all_metrics
 import dldata.metrics.utils as u
 import os
 from benchmark import benchmark
-from hvm_2way_consistency import standard_subordinate_dprime_IC
-from get_model_results import get_nyu_basic_results, get_nyu_subordinate_results
-
+import hvm_2way_consistency as h
+import get_model_results as g
 def test_all_metrics():
     trials = CM.get_data('hvm_basic_categorization_new', 'category')
 
@@ -26,11 +25,16 @@ def test_benchmark():
     benchmark('hvm_all_categorization_tasks', parallel=True)
     benchmark('hvm_figure_ground', parallel=True)
 
-def test_hvm_basic_2way_consistency():
-    standard_subordinate_dprime_IC()
-
 def test_nyu_model_results():
-    get_nyu_basic_results()
-    get_nyu_subordinate_results()
+    trials = g.basic_trials(g.NYU_COLL)
+    names = ('obj', 'rxz', 'rxy', 'ryz', 'ty', 'tz', 's', 'bg_id', 'size', 'var', '_id', 'filename', 'id', 'category',
+           'rxz_semantic', 'rxy_semantic', 'ryz_semantic', 'correct', 'Response', 'two_way_type')
+    assert trials.dtypes.names == names
 
-test_hvm_basic_2way_consistency()
+def test_nyu_consistency():
+    human_data = h.get_basic_human_data()
+    model_data = g.basic_trials(g.NYU_COLL)
+    print h.trial_split_consistency(human_data, model_data,
+                                    'dp_standard', 'two_way_type', 'category')
+
+test_nyu_consistency()

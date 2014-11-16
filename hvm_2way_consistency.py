@@ -13,9 +13,6 @@ def trial_split_half_consistency(trials, metric, kwargs, split_field, meta_field
         rng = np.random.RandomState(0)
     ICs = []
     for rep in range(bstrapiter):
-        if rep % 100 == 0:
-            print rep
-            print np.mean(ICs)
         inds = rng.permutation(range(trials.shape[0]))
         inds1, inds2 = inds[:inds.shape[0]/2], inds[inds.shape[0]/2:]
         CMS1 = get_cms(trials[inds1], split_field, meta_field)
@@ -40,7 +37,7 @@ def get_cms(data, split_field, meta_field, split_field_vals=None):
         CMs.append(cm.get_confusion_matrix(data, meta_field)[0])
     else:
         if split_field_vals is None:
-            np.unique(data[split_field])
+            split_field_vals = np.unique(data[split_field])
         for fval in split_field_vals:
             rel_data = data[data[split_field] == fval]
             CMs.append(cm.get_confusion_matrix(rel_data, meta_field)[0])
