@@ -109,8 +109,10 @@ def get_nyu_subordinate_results():
                              ObjectId('542927872c39ac23120db840'),
                              u'fc6')[:]
     collname = 'NYU_Model_Results'
-    for obj1, obj2 in itertools.combinations(np.unique(dataset.meta['obj']), 2):
-        store_subordinate_results(F, obj1, obj2, collname)
+    m = dataset.meta
+    for cat in np.unique(m['category']):
+        for obj1, obj2 in itertools.combinations(np.unique(m[m['category']==cat]['obj']), 2):
+            store_subordinate_results(F, obj1, obj2, collname)
 
 
 def deduplicate(coll):
@@ -123,13 +125,14 @@ def deduplicate(coll):
 def add_type_tag(coll):
     basic_two_way_types = np.unique(h.get_basic_human_data()['two_way_type'])
     sub_two_way_types = np.unique(h.get_subordinate_human_data()['two_way_type'])
+    type_tag = 'other'
     for entry in coll.find():
         if entry['two_way_type'] in basic_two_way_types:
             type_tag = 'basic'
             coll.update({'_id':entry['_id']}, {'$set': {'type_tag': type_tag}})
         elif entry['two_way_type'] in sub_two_way_types:
             type_tag = 'subordinate'
-            coll.update({'_id':entry['_id']}, {'$set': {'type_tag': type_tag}})
+    coll.update({'_id':entry['_id']}, {'$set': {'type_tag': type_tag}})
 
 
 def subordinate_trials(coll):
