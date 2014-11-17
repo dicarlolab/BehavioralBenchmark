@@ -1,0 +1,25 @@
+/cm/shared/openmind/anaconda/2.1.0/lib/python2.7/site-packages/numpy/core/_methods.py:59: RuntimeWarning: Mean of empty slice.
+  warnings.warn("Mean of empty slice.", RuntimeWarning)
+/cm/shared/openmind/anaconda/2.1.0/lib/python2.7/site-packages/numpy/core/_methods.py:71: RuntimeWarning: invalid value encountered in double_scalars
+  ret = ret.dtype.type(ret / rcount)
+Can't import separate mcc package
+Can't import asgd.
+0
+nan
+100
+0.95968941811
+200
+0.959707788705
+300
+0.959604550528
+400
+0.959724786769
+500
+0.959658205609
+600
+0.959678740588
+700
+0.959702946655
+800
+0.95970463756
+(0.95967085310406208, 0.0040732094858576279)
