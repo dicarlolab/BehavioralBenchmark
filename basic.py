@@ -1,2 +1,4 @@
 import get_model_results as g
-g.get_nyu_basic_results()
+import sys
+feature_name =sys.argv[1]
+g.store_all_basic_results(feature_name)

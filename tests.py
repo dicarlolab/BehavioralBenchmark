@@ -44,11 +44,11 @@ def test_nyu_subordinate_consistency():
 
 def test_nyu_cmat_consistency():
     human_data = h.get_subordinate_human_data()
-    model_data = g.subordinate_trials(g.NYU_COLL)
     print 'Human Split Half cmat consistency'
     consistency_kwargs = {'metric':'row_then_column_normalize', 'kwargs':None, 'split_field':'two_way_type',
-                          'image_property':'task_category', 'response_property':'obj'}
+                          'image_property':'task_category', 'response_property':'obj', 'bstrapiter':3}
     print h.trial_split_half_consistency(human_data, **consistency_kwargs)
+    model_data = g.subordinate_trials(g.NYU_COLL)
     print 'Model split half cmat consistency'
     print h.trial_split_half_consistency(model_data, **consistency_kwargs)
     print 'Model-human consistency'

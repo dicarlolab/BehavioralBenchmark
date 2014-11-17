@@ -5,9 +5,25 @@ import dldata.metrics.utils as u
 import scipy.stats
 
 
+
+ h.trial_split_half_consistency(**{'trials':None, 'metric': 'row_then_column_normalize', 'kwargs': None, 'bstrapiter': 3, 'split_field': 'two_way_type', 'image_property': 'task_category', 'response_property': 'obj'})
+
 def trial_split_half_consistency(trials, metric, kwargs, split_field,
                                  image_property, response_property, bstrapiter = 900, rng = None,
                                  spearman_brown_correction=True):
+    """
+
+    :param trials: Data in trial tabular array format as returned by dldata.confusion_matrices.get_data
+    :param metric: Oneof the metrics registered in dldata.metrics.utils get_rm_metrics()
+    :param kwargs: Kwargs to pass that metric
+    :param split_field: Generate one response matrix per unique value of this field in trials
+    :param image_property: What property of the image to use for response matrix
+    :param response_property: What property of the response to use for the response matrix
+    :param bstrapiter: NUmber of iterations to repeat bootstrap
+    :param rng: random number generator, as in np.random.RandomState
+    :param spearman_brown_correction: Whether to correct IC using spearman-brown prediction formula
+    :return: mean, standard deviation over bootstrap
+    """
     metric_func, kwargs = u.get_rm_metric(metric, kwargs)
     if rng is None:
         rng = np.random.RandomState(0)
