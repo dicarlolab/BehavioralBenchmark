@@ -31,10 +31,15 @@ def test_nyu_model_results():
            'rxz_semantic', 'rxy_semantic', 'ryz_semantic', 'correct', 'Response', 'two_way_type')
     assert trials.dtypes.names == names
 
-def test_nyu_consistency():
+def test_nyu_basic_consistency():
     human_data = h.get_basic_human_data()
     model_data = g.basic_trials(g.NYU_COLL)
     print h.trial_split_consistency(human_data, model_data,
                                     'dp_standard', 'two_way_type', 'category')
 
-test_nyu_consistency()
+def test_nyu_subordinate_consistency():
+    human_data = h.get_subordinate_human_data()
+    model_data = g.subordinate_trials(g.NYU_COLL)
+    print h.trial_split_consistency(human_data, model_data, 'dp_standard', 'two_way_type', 'obj', bstrapiter=3)
+
+test_nyu_subordinate_consistency()

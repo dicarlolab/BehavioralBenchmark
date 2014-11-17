@@ -125,34 +125,27 @@ def deduplicate(coll):
 def add_type_tag(coll):
     basic_two_way_types = np.unique(h.get_basic_human_data()['two_way_type'])
     sub_two_way_types = np.unique(h.get_subordinate_human_data()['two_way_type'])
-    type_tag = 'other'
     for entry in coll.find():
+        type_tag = 'other'
         if entry['two_way_type'] in basic_two_way_types:
             type_tag = 'basic'
-            coll.update({'_id':entry['_id']}, {'$set': {'type_tag': type_tag}})
         elif entry['two_way_type'] in sub_two_way_types:
             type_tag = 'subordinate'
-    coll.update({'_id':entry['_id']}, {'$set': {'type_tag': type_tag}})
+        coll.update({'_id':entry['_id']}, {'$set': {'type_tag': type_tag}})
 
 
 def subordinate_trials(coll):
-    dataset = hvm.HvMWithDiscfade()
-    meta = dataset.meta
-    data = coll.find_one({'type_tag': 'subordinate'})
-    for entry in data:
-        for i, split in enumerate(entry['results']['splits'][0]):
-            correct = ~np.array(entry['results']['split_results'][i]['test_errors'])
-            Response = entry['results']['split_results'][i]['test_errors']
-            meta = meta[split['test']]
-            two_way_type = [entry['two_way_type']]*meta.shape[0]
-            meta = meta.addcols([correct, Response, two_way_type],
-                                names=['correct', 'Response', 'two_way_type'])
+    data = coll.find({'type_tag': 'subordinate'})
+    return get_model_trials(data)
 
 
 NYU_COLL = pm.MongoClient(port=22334)['BehavioralBenchmark']['NYU_Model_Results']
+
 def basic_trials(coll):
-    dataset = hvm.HvMWithDiscfade()
     data = coll.find({'type_tag': 'basic'})
+    return get_model_trials(data)
+
+def get_model_trials(data):
     trials = []
     for entry in data:
         for i, split in enumerate(entry['results']['splits'][0]):

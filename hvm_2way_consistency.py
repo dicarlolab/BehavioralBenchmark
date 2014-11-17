@@ -5,9 +5,9 @@ import dldata.metrics.utils as u
 import scipy.stats
 
 
-
-
-def trial_split_half_consistency(trials, metric, kwargs, split_field, meta_field, bstrapiter = 900, rng = None, spearman_brown_correction=True):
+def trial_split_half_consistency(trials, metric, kwargs, split_field,
+                                 image_property, response_property, bstrapiter = 900, rng = None,
+                                 spearman_brown_correction=True):
     metric_func, kwargs = u.get_rm_metric(metric, kwargs)
     if rng is None:
         rng = np.random.RandomState(0)
@@ -15,8 +15,8 @@ def trial_split_half_consistency(trials, metric, kwargs, split_field, meta_field
     for rep in range(bstrapiter):
         inds = rng.permutation(range(trials.shape[0]))
         inds1, inds2 = inds[:inds.shape[0]/2], inds[inds.shape[0]/2:]
-        CMS1 = get_cms(trials[inds1], split_field, meta_field)
-        CMS2 = get_cms(trials[inds2], split_field, meta_field)
+        CMS1 = get_rms(trials[inds1], split_field, image_property, response_property)
+        CMS2 = get_rms(trials[inds2], split_field, image_property, response_property)
         m1 = []
         m2 = []
         for CM1, CM2 in zip(CMS1, CMS2):
@@ -28,20 +28,22 @@ def trial_split_half_consistency(trials, metric, kwargs, split_field, meta_field
         ICs.append(IC)
     return np.mean(ICs), np.std(ICs)
 
+
 def spearman_brown_correct(IC):
     return 2*IC/(1+IC)
 
-def get_cms(data, split_field, meta_field, split_field_vals=None):
-    CMs = []
+
+def get_rms(data, split_field, image_property, response_property, split_field_vals=None):
+    RMs = []
     if split_field is None:
-        CMs.append(cm.get_confusion_matrix(data, meta_field)[0])
+        RMs.append(cm.get_response_matrix(data, image_property, response_property, group_by_worker=True))
     else:
         if split_field_vals is None:
             split_field_vals = np.unique(data[split_field])
         for fval in split_field_vals:
             rel_data = data[data[split_field] == fval]
-            CMs.append(cm.get_confusion_matrix(rel_data, meta_field)[0])
-    return CMs
+            RMs.append(cm.get_confusion_matrix(rel_data, image_property, response_property, group_by_worker=True)[0])
+    return RMs
 
 
 def get_basic_human_data():
@@ -56,6 +58,7 @@ def get_basic_human_data():
         two_way_types.append('_'.join(sorted([choice1, choice2])))
     data = data.addcols(two_way_types, 'two_way_type')
     return data
+
 
 def get_subordinate_human_data():
     meta_field = 'obj'
@@ -86,13 +89,14 @@ def get_subordinate_human_data():
 #                                        meta_field='category')
 #
 
-def trial_split_consistency(data1, data2, metric, split_field, meta_field, kwargs=None, bstrapiter=900):
+def trial_split_consistency(data1, data2, metric, split_field,
+                            image_property, response_property, kwargs=None, bstrapiter=900):
     metric_func, kwargs = u.get_rm_metric(metric, kwargs)
     split_field_vals = None
     if split_field is not None:
         split_field_vals = np.unique(data1[split_field])
-    CMS1 = get_cms(data1, split_field, meta_field, split_field_vals)
-    CMS2 = get_cms(data2, split_field, meta_field, split_field_vals)
+    CMS1 = get_rms(data1, split_field, image_property, response_property, split_field_vals)
+    CMS2 = get_rms(data2, split_field, image_property, response_property, split_field_vals)
     m1 = []
     m2 = []
     for CM1, CM2 in zip(CMS1, CMS2):
@@ -102,8 +106,10 @@ def trial_split_consistency(data1, data2, metric, split_field, meta_field, kwarg
     denominators =[]
     rng = np.random.RandomState(0)
     for rep in range(bstrapiter):
-        IC1, _ = trial_split_half_consistency(data1, metric, kwargs, split_field, meta_field, bstrapiter=1, rng=rng)
-        IC2, _ = trial_split_half_consistency(data2, metric, kwargs, split_field, meta_field, bstrapiter=1, rng=rng)
+        IC1, _ = trial_split_half_consistency(data1, metric, kwargs, split_field,
+                                              image_property, response_property, bstrapiter=1, rng=rng)
+        IC2, _ = trial_split_half_consistency(data2, metric, kwargs, split_field,
+                                              image_property, response_property, bstrapiter=1, rng=rng)
         denominators.append(np.sqrt(IC1*IC2))
     consistencies = R/np.array(denominators)
     return np.mean(consistencies), np.std(consistencies)
