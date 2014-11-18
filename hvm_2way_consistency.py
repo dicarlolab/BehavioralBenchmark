@@ -5,9 +5,6 @@ import dldata.metrics.utils as u
 import scipy.stats
 
 
-
- h.trial_split_half_consistency(**{'trials':None, 'metric': 'row_then_column_normalize', 'kwargs': None, 'bstrapiter': 3, 'split_field': 'two_way_type', 'image_property': 'task_category', 'response_property': 'obj'})
-
 def trial_split_half_consistency(trials, metric, kwargs, split_field,
                                  image_property, response_property, bstrapiter = 900, rng = None,
                                  spearman_brown_correction=True):
@@ -58,7 +55,8 @@ def get_rms(data, split_field, image_property, response_property, split_field_va
             split_field_vals = np.unique(data[split_field])
         for fval in split_field_vals:
             rel_data = data[data[split_field] == fval]
-            RMs.append(cm.get_confusion_matrix(rel_data, image_property, response_property, group_by_worker=True)[0])
+            RMs.append(cm.get_response_matrix(rel_data, image_property = image_property,
+                                              response_property = response_property, group_by_worker=True)[0])
     return RMs
 
 
