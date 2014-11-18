@@ -148,12 +148,3 @@ def get_model_trials(data):
     return tb.tab_rowstack(trials)
 
 
-
-
-import sys
-feature_name =sys.argv[1]
-g.get_hvm_attached_feature_results_basic(feature_name)
-# for two_way_type in
-# results = coll.find_one({'two_way_type': two_way_type})
-#for r in results['split_results']:
-
