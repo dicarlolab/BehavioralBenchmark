@@ -12,6 +12,19 @@ dataset = hvm.HvMWithDiscfade()
 
 DB = pm.MongoClient(port=22334)['BehavioralBenchmark']
 
+classifier_config = {
+            'metric_screen': 'classifier',
+            'metric_kwargs':
+                {'model_type': 'svm.LinearSVC',
+                 'model_kwargs': {
+                    'GridSearchCV_params': {'C': np.logspace(-5, 4, 22)},
+                    'GridSearchCV_kwargs': {'n_jobs': 22},
+                    'class_weight': 'auto'
+                    }
+                },
+            'num_splits': 50,
+            'npc_validate': 0}
+
 
 def store_subordinate_results(F, obj1, obj2, collname):
     coll = DB[collname]
@@ -21,23 +34,14 @@ def store_subordinate_results(F, obj1, obj2, collname):
     if coll.find(query).count() == 1:
         pass
     elif coll.find(query).count() == 0:
-        eval_config = {
+        eval_config = classifier_config
+        eval_config.update({
             'labelfunc': 'obj',
-            'metric_screen': 'classifier',
-            'metric_kwargs':
-                {'model_type': 'svm.LinearSVC', 'model_kwargs': {
-                    # 'C': 5e4, 'penalty': 'l2','loss': 'l2',
-                    'GridSearchCV_params': {'C': np.logspace(-5, 4, 22)},
-                    'GridSearchCV_kwargs': {'n_jobs': 22},
-                    'class_weight': 'auto'
-                }},
             'npc_test': 5,
             'npc_train': 85,
-            'npc_validate': 0,
-            'num_splits': 50,
             'split_by': 'obj',
             'test_q': {'obj': [obj1, obj2], 'var': 'V6'},
-            'train_q': {'obj': [obj1, obj2]}}
+            'train_q': {'obj': [obj1, obj2]}})
         results = u.compute_metric_base(F, dataset.meta, eval_config,
                                         return_splits=True)
         doc = utils.SONify({'two_way_type': two_way_type,
@@ -57,23 +61,14 @@ def store_basic_results(F, cat1, cat2, collname):
     if coll.find(query).count() == 1:
         return coll.find_one(query)['results']
     elif coll.find(query).count() == 0:
-        eval_config = {
+        eval_config = classifier_config
+        eval_config.update({
             'labelfunc': 'category',
-            'metric_screen': 'classifier',
-            'metric_kwargs':
-                {'model_type': 'svm.LinearSVC', 'model_kwargs': {
-                    # 'C': 5e4, 'penalty': 'l2','loss': 'l2',
-                    'GridSearchCV_params': {'C': np.logspace(-5, 4, 22)},
-                    'GridSearchCV_kwargs': {'n_jobs': 22},
-                    'class_weight': 'auto'
-                }},
             'npc_test': 19,
             'npc_train': 611,
-            'npc_validate': 0,
-            'num_splits': 50,
             'split_by': 'category',
             'test_q': {'category': [cat1, cat2], 'var': 'V6'},
-            'train_q': {'category': [cat1, cat2]}}
+            'train_q': {'category': [cat1, cat2]}})
         results = u.compute_metric_base(F, dataset.meta, eval_config,
                                         return_splits=True)
         doc = utils.SONify({'two_way_type': two_way_type,
@@ -85,34 +80,27 @@ def store_basic_results(F, cat1, cat2, collname):
         raise ValueError
 
 
-def get_nyu_basic_results():
-    F = dataset.get_features({u'crop': None,
-                              u'dtype': u'float32',
-                              u'mask': None,
-                              u'mode': u'RGB',
-                              u'normalize': False,
-                              u'resize_to': [256, 256]},
-                             ObjectId('542927872c39ac23120db840'),
-                             u'fc6')[:]
-    collname = 'NYU_Model_Results'
+def all_hvm_basic_2ways(F, collname):
     for cat1, cat2 in itertools.combinations(np.unique(dataset.meta['category']), 2):
         store_basic_results(F, cat1, cat2, collname)
 
 
-def get_nyu_subordinate_results():
-    F = dataset.get_features({u'crop': None,
-                              u'dtype': u'float32',
-                              u'mask': None,
-                              u'mode': u'RGB',
-                              u'normalize': False,
-                              u'resize_to': [256, 256]},
-                             ObjectId('542927872c39ac23120db840'),
-                             u'fc6')[:]
-    collname = 'NYU_Model_Results'
+def all_hvm_subordinate_2ways(F, collname):
     m = dataset.meta
     for cat in np.unique(m['category']):
         for obj1, obj2 in itertools.combinations(np.unique(m[m['category']==cat]['obj']), 2):
             store_subordinate_results(F, obj1, obj2, collname)
+
+
+def get_hvm_attached_feature_results_basic(feature_name):
+    F = dataset.machine_features(feature_name)
+    collname = feature_name
+    all_hvm_basic_2ways(F, collname)
+
+def get_hvm_attached_feature_results_subordinate(feature_name):
+    F = dataset.machine_features(feature_name)
+    collname = feature_name
+    all_hvm_subordinate_2ways(F, collname)
 
 
 def deduplicate(coll):
@@ -159,6 +147,12 @@ def get_model_trials(data):
                                 names=['correct', 'Response', 'two_way_type', 'WorkerId']))
     return tb.tab_rowstack(trials)
 
+
+
+
+import sys
+feature_name =sys.argv[1]
+g.get_hvm_attached_feature_results_basic(feature_name)
 # for two_way_type in
 # results = coll.find_one({'two_way_type': two_way_type})
 #for r in results['split_results']:
