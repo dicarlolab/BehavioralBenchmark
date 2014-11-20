@@ -93,7 +93,7 @@ def store_basic_results(F, cat1, cat2, collname):
 
 
 
-def all_hvm_attached_feature_results_subordinate(feature_name):
+def get_hvm_attached_feature_results_subordinate(feature_name):
     """
     Given a set of features, store all 2-way subordinate results in the database
     :param feature_name: Name of features to calculate for
