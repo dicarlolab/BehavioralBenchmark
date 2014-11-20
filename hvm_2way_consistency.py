@@ -3,7 +3,11 @@ import dldata.human_data.confusion_matrices as cm
 import numpy as np
 import dldata.metrics.utils as u
 import scipy.stats
+import pymongo as pm
+import get_model_results as g
+import utils
 
+benchmark_db = pm.MongoClient(port=22334)['BehavioralBenchmark']
 
 def trial_split_half_consistency(trials, metric, kwargs, split_field,
                                  image_property, response_property, bstrapiter = 900, rng = None,
@@ -26,6 +30,8 @@ def trial_split_half_consistency(trials, metric, kwargs, split_field,
         rng = np.random.RandomState(0)
     ICs = []
     for rep in range(bstrapiter):
+        if rep%100 == 0:
+            print rep/float(bstrapiter)
         inds = rng.permutation(range(trials.shape[0]))
         inds1, inds2 = inds[:inds.shape[0]/2], inds[inds.shape[0]/2:]
         CMS1 = get_rms(trials[inds1], split_field, image_property, response_property)
@@ -103,6 +109,12 @@ def get_subordinate_human_data():
 #                                        meta_field='category')
 #
 
+def apply_metric(RMs, metric_func, kwargs):
+    m = []
+    for RM in RMs:
+        m.extend(metric_func(RM, **kwargs))
+    return m
+
 def trial_split_consistency(data1, data2, metric, split_field,
                             image_property, response_property, kwargs=None, bstrapiter=900):
     metric_func, kwargs = u.get_rm_metric(metric, kwargs)
@@ -117,16 +129,57 @@ def trial_split_consistency(data1, data2, metric, split_field,
         m1.extend( metric_func(CM1, **kwargs))
         m2.extend( metric_func(CM2, **kwargs))
     R, _ = scipy.stats.spearmanr(m1,m2)
-    denominators =[]
+    consistencies = []
     rng = np.random.RandomState(0)
+    ICs1 = []
+    ICs2 = []
     for rep in range(bstrapiter):
-        IC1, _ = trial_split_half_consistency(data1, metric, kwargs, split_field,
-                                              image_property, response_property, bstrapiter=1, rng=rng)
-        IC2, _ = trial_split_half_consistency(data2, metric, kwargs, split_field,
-                                              image_property, response_property, bstrapiter=1, rng=rng)
-        denominators.append(np.sqrt(IC1*IC2))
-    consistencies = R/np.array(denominators)
-    return np.mean(consistencies), np.std(consistencies)
+        if rep%100 == 0:
+            print rep/float(bstrapiter)
+
+        # Split first data
+        inds1 = rng.permutation(range(data1.shape[0]))
+        inds11, inds12 = inds1[:inds1.shape[0]/2], inds1[inds1.shape[0]/2:]
+        RMs11 = get_rms(data1[inds11], split_field, image_property, response_property)
+        RMs12 = get_rms(data1[inds12], split_field, image_property, response_property)
+
+        #Split second data
+        inds2 = rng.permutation(range(data1.shape[0]))
+        inds21, inds22 = inds2[:inds2.shape[0]/2], inds2[inds2.shape[0]/2:]
+        RMs21 = get_rms(data1[inds21], split_field, image_property, response_property)
+        RMs22 = get_rms(data1[inds22], split_field, image_property, response_property)
+
+        #Calculate metrics
+        m11, m12, m21, m22 = tuple([apply_metric(RMs, metric_func, kwargs) for RMs in [RMs11, RMs12, RMs21, RMs22]])
+
+        #noise level
+        IC1, _ = scipy.stats.spearmanr(m11, m12)
+        IC2, _ = scipy.stats.spearmanr(m21, m22)
+        noise = np.sqrt(IC1*IC2)
+
+        #Consistencies
+        R1, _ = scipy.stats.spearmanr(m11, m21)
+        R2, _ = scipy.stats.spearmanr(m11, m22)
+        R3, _ = scipy.stats.spearmanr(m12, m21)
+        R4, _ = scipy.stats.spearmanr(m11, m22)
+        ICs1.append(IC1)
+        ICs2.append(IC2)
+        consistencies.extend([R1/noise, R2/noise, R3/noise, R4/noise])
+    return np.mean(consistencies), np.std(consistencies), np.mean(ICs1), np.std(ICs2), np.mean(ICs1), np.mean(ICs2)
+
+
+
+def store_subordinate_consistency(results_collname):
+    human_data = get_subordinate_human_data()
+    results_coll = benchmark_db[results_collname]
+    consistency_kwargs = {'metric':'dp_standard', 'kwargs':None, 'split_field':'two_way_type',
+                          'image_property':'obj', 'response_property':'Response', 'bstrapiter': 3}
+    model_data = g.subordinate_trials(results_coll)
+    results = {'consistency_kwargs':consistency_kwargs}
+    results['split_half'] = trial_split_half_consistency(model_data, **consistency_kwargs)
+    results['hvm_subordinate_two_way'] = trial_split_consistency(human_data, model_data, **consistency_kwargs)
+    results_coll.insert(utils.SONify(results))
+
 
 
 
