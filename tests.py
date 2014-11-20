@@ -35,23 +35,19 @@ def test_nyu_basic_consistency():
     human_data = h.get_basic_human_data()
     model_data = g.basic_trials(g.NYU_COLL)
     print h.trial_split_consistency(human_data, model_data,
-                                    'dp_standard', 'two_way_type', 'category')
+                                    'dp_standard', 'two_way_type', 'category', bstrapiter=3)
 
 def test_nyu_subordinate_consistency():
     human_data = h.get_subordinate_human_data()
     model_data = g.subordinate_trials(g.NYU_COLL)
-    print h.trial_split_consistency(human_data, model_data, 'dp_standard', 'two_way_type', 'obj', bstrapiter=900)
+    print h.trial_split_consistency(human_data, model_data, 'dp_standard', 'two_way_type', 'obj', bstrapiter=3)
 
 def test_nyu_consistency():
     human_data = h.get_subordinate_human_data()
-    print 'Human Split Half cmat consistency'
+    print 'Human Split Half dp consistency'
     consistency_kwargs = {'metric':'dp_standard', 'kwargs':None, 'split_field':'two_way_type',
-                          'image_property':'obj', 'response_property':'Response', 'bstrapiter':900}
-    print h.trial_split_half_consistency(human_data, **consistency_kwargs)
+                          'image_property':'obj', 'response_property':'Response', 'bstrapiter': 900}
     model_data = g.subordinate_trials(g.NYU_COLL)
-    print 'Model split half cmat consistency'
-    print h.trial_split_half_consistency(model_data, **consistency_kwargs)
-    print 'Model-human consistency'
     print h.trial_split_consistency(human_data, model_data, **consistency_kwargs)
 
 test_nyu_consistency()

@@ -8,6 +8,8 @@ import pymongo as pm
 import utils as utils
 import hvm_2way_consistency as h
 import tabular as tb
+import gridfs
+import cPickle
 dataset = hvm.HvMWithDiscfade()
 
 DB = pm.MongoClient(port=22334)['BehavioralBenchmark']
@@ -26,58 +28,45 @@ classifier_config = {
             'npc_validate': 0}
 
 
-def store_subordinate_results(F, obj1, obj2, collname):
-    coll = DB[collname]
-    two_way_type = '_'.join(sorted([obj1, obj2]))
-    print two_way_type
+def store_two_way(F, two_way_type, train_config, collname, type_tag):
+    results_fs = get_results_fs(collname)
     query = {'two_way_type': two_way_type}
-    if coll.find(query).count() == 1:
+    count = results_fs._GridFS__files.find(query).count()
+    if count >= 1:
         pass
-    elif coll.find(query).count() == 0:
-        eval_config = classifier_config
-        eval_config.update({
-            'labelfunc': 'obj',
-            'npc_test': 5,
-            'npc_train': 85,
-            'split_by': 'obj',
-            'test_q': {'obj': [obj1, obj2], 'var': 'V6'},
-            'train_q': {'obj': [obj1, obj2]}})
-        results = u.compute_metric_base(F, dataset.meta, eval_config,
+    eval_config = classifier_config.update(train_config)
+    results = u.compute_metric_base(F, dataset.meta, eval_config,
                                         return_splits=True)
-        doc = utils.SONify({'two_way_type': two_way_type,
-                            'results': results,
-                            'type_tag': 'subordinate'})
-        coll.insert(doc)
-    else:
-        print 'More than one precomputed result found for %s' % two_way_type
-        raise ValueError
+    info = {'two_way_type': two_way_type,
+            'results': results,
+            'type_tag': type_tag,
+            'eval_config': eval_config}
 
+    blob = cPickle.dumps(results, protocol=cPickle.HIGHEST_PROTOCOL)
+    idval = results_fs.put(blob, **info)
+    print 'Stored %s as %s in %s'%(two_way_type, idval, collname)
+
+def store_subordinate_results(F, obj1, obj2, collname):
+    two_way_type = '_'.join(sorted([obj1, obj2]))
+    train_config = {
+        'labelfunc': 'obj',
+        'npc_test': 5,
+        'npc_train': 85,
+        'split_by': 'obj',
+        'test_q': {'obj': [obj1, obj2], 'var': 'V6'},
+        'train_q': {'obj': [obj1, obj2]}}
+    store_two_way(F, two_way_type, train_config, collname, 'subordinate')
 
 def store_basic_results(F, cat1, cat2, collname):
-    coll = DB[collname]
     two_way_type = '_'.join(sorted([cat1, cat2]))
-    query = {'two_way_type': two_way_type}
-    print two_way_type
-    if coll.find(query).count() == 1:
-        return coll.find_one(query)['results']
-    elif coll.find(query).count() == 0:
-        eval_config = classifier_config
-        eval_config.update({
+    train_config =  {
             'labelfunc': 'category',
             'npc_test': 19,
             'npc_train': 611,
             'split_by': 'category',
             'test_q': {'category': [cat1, cat2], 'var': 'V6'},
-            'train_q': {'category': [cat1, cat2]}})
-        results = u.compute_metric_base(F, dataset.meta, eval_config,
-                                        return_splits=True)
-        doc = utils.SONify({'two_way_type': two_way_type,
-                            'results': results,
-                            'type_tag': 'basic'})
-        coll.insert(doc)
-    else:
-        print 'More than one precomputed result found for %s' % two_way_type
-        raise ValueError
+            'train_q': {'category': [cat1, cat2]}}
+    store_two_way(F, two_way_type, train_config, collname, 'basic')
 
 
 def all_hvm_basic_2ways(F, collname):
@@ -122,20 +111,12 @@ def add_type_tag(coll):
         coll.update({'_id':entry['_id']}, {'$set': {'type_tag': type_tag}})
 
 
-def subordinate_trials(coll):
-    data = coll.find({'type_tag': 'subordinate'})
-    return get_model_trials(data)
-
-
-NYU_COLL = pm.MongoClient(port=22334)['BehavioralBenchmark']['NYU_Model_Results']
-
-def basic_trials(coll):
-    data = coll.find({'type_tag': 'basic'})
-    return get_model_trials(data)
-
-def get_model_trials(data):
+def get_trials(fsname, type_tag):
+    fs = gridfs.GridFS(DB)
+    recs = [rec for rec in fs._GridFS__files.find({'type_tag': type_tag})]
     trials = []
-    for entry in data:
+    for rec in recs:
+        entry = cPickle.loads(fs.get_last_version(_id=rec['_id']).read())
         for i, split in enumerate(entry['results']['splits'][0]):
             split_results = entry['results']['split_results'][i]
             correct = np.array(split_results['test_errors'][0])==0
@@ -146,5 +127,19 @@ def get_model_trials(data):
             trials.append(meta.addcols([correct, Response, two_way_type, worker_ids],
                                 names=['correct', 'Response', 'two_way_type', 'WorkerId']))
     return tb.tab_rowstack(trials)
+
+
+NYU_COLL = pm.MongoClient(port=22334)['BehavioralBenchmark']['NYU_Model_Results']
+
+
+def get_results_fs(feature_name):
+    return gridfs.GridFS(DB, feature_name+'_results')
+
+
+
+
+def get_model_trials(data):
+    trials = []
+
 
 
