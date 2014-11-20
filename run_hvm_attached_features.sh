@@ -1,4 +1,5 @@
 #!/bin/bash
+sh run_tasks.sh NYU_MODEL
 sh run_tasks.sh v1like_features
 sh run_tasks.sh v2like_features
 sh run_tasks.sh pht2_features_0
