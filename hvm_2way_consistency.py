@@ -176,10 +176,10 @@ def store_consistency(behavior_name, consistency_type):
     results_key_name = '_'.join(['hvm', consistency_type, 'two_way'])
     if consistency_type == 'subordinate':
         human_data = get_subordinate_human_data()
-        model_data = g.get_trials(behavior_name, consistency_type)
+        model_data = g.get_model_behavior(behavior_name, consistency_type)
     elif consistency_type == 'basic':
         human_data = get_basic_human_data()
-        model_data = g.get_trials(behavior_name, consistency_type)
+        model_data = g.get_model_behavior(behavior_name, consistency_type)
     elif consistency_type == 'all':
         human_data = tb.tab_rowstack([get_basic_human_data(),
                                       get_subordinate_human_data()])

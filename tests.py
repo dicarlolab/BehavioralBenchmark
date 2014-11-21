@@ -42,12 +42,12 @@ def test_nyu_subordinate_consistency():
     model_data = g.subordinate_trials(g.NYU_COLL)
     print h.trial_split_consistency(human_data, model_data, 'dp_standard', 'two_way_type', 'obj', bstrapiter=3)
 
-def test_nyu_consistency():
+def test_hmo_consistency():
     human_data = h.get_subordinate_human_data()
     print 'Human Split Half dp consistency'
     consistency_kwargs = {'metric':'dp_standard', 'kwargs':None, 'split_field':'two_way_type',
                           'image_property':'obj', 'response_property':'Response', 'bstrapiter': 900}
-    model_data = g.subordinate_trials(g.NYU_COLL)
+    model_data = g.get_model_behavior('pht2_features_3', 'basic')
     print h.trial_split_consistency(human_data, model_data, **consistency_kwargs)
 
-test_nyu_consistency()
+test_hmo_consistency()
