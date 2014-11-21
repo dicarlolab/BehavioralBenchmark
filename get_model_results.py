@@ -15,6 +15,18 @@ dataset = hvm.HvMWithDiscfade()
 
 DB = pm.MongoClient(port=22334)['ModelBehavior']
 
+
+FEATURES = ['NYU_MODEL',
+ 'v1like_features',
+ 'v2like_features',
+ 'pht2_features_0',
+ 'pht2_features_2',
+ 'pht2_features_3',
+ 'PLOS09_L3_3281',
+ 'sift_features',
+ 'slf_features']
+
+
 classifier_config = {
             'metric_screen': 'classifier',
             'metric_kwargs':
@@ -41,17 +53,18 @@ def store_two_way(F, two_way_type, train_config, collname, type_tag):
     results_fs = get_results_fs(collname)
     query = {'two_way_type': two_way_type}
     count = results_fs._GridFS__files.find(query).count()
-    if count >= 1:
-        pass
-    eval_config = copy.deepcopy(classifier_config)
-    eval_config.update(train_config)
-    results = u.compute_metric_base(F, dataset.meta, eval_config,
+    if count == 1:
+        idval = results_fs._GridFS__files.find_one(query)['_id']
+        print 'Found %s as %s in %s'%(two_way_type, idval, collname)
+    else:
+        eval_config = copy.deepcopy(classifier_config)
+        eval_config.update(train_config)
+        results = u.compute_metric_base(F, dataset.meta, eval_config,
                                         return_splits=True)
-    assert isinstance(eval_config, object)
-    info = utils.SONify(dict(two_way_type=two_way_type, type_tag=type_tag, eval_config=eval_config))
-    blob = cPickle.dumps(results, protocol=cPickle.HIGHEST_PROTOCOL)
-    idval = results_fs.put(blob, **info)
-    print 'Stored %s as %s in %s'%(two_way_type, idval, collname)
+        info = utils.SONify(dict(two_way_type=two_way_type, type_tag=type_tag, eval_config=eval_config))
+        blob = cPickle.dumps(results, protocol=cPickle.HIGHEST_PROTOCOL)
+        idval = results_fs.put(blob, **info)
+        print 'Stored %s as %s in %s'%(two_way_type, idval, collname)
 
 
 def store_subordinate_results(F, obj1, obj2, collname):
@@ -142,8 +155,12 @@ def deduplicate(coll):
             coll.remove({'_id': _id})
 
 
-def get_trials(feature_name, type_tag):
-    fs = get_hvm_attached_feature_results_basic(feature_name)
+def get_model_behavior(feature_name, type_tag):
+    fs = get_results_fs(feature_name)
+    return get_trials(fs, type_tag)
+
+
+def get_trials(fs, type_tag):
     recs = [rec for rec in fs._GridFS__files.find({'type_tag': type_tag})]
     trials = []
     for rec in recs:
@@ -152,16 +169,16 @@ def get_trials(feature_name, type_tag):
     return tb.tab_rowstack(trials)
 
 
-def trials_from_results_dic(results_dic):
+def trials_from_results_dic(results_dic, two_way_type):
     trials = []
-    for i, split in enumerate(results_dic['results']['splits'][0]):
-        split_results = results_dic['results']['split_results'][i]
+    for i, split in enumerate(results_dic['splits'][0]):
+        split_results = results_dic['split_results'][i]
         correct = np.array(split_results['test_errors'][0])==0
-        Response = split_results['test_prediction']
+        Response = np.array(split_results['test_prediction'])
         meta = dataset.meta[split['test']]
-        two_way_type = [results_dic['two_way_type']]*meta.shape[0]
-        worker_ids = [i]*meta.shape[0]  # Modeling subjects as splits
-        meta.addcols([correct, Response, two_way_type, worker_ids],
+        t_type = np.array([two_way_type]*meta.shape[0])
+        worker_ids = np.array([i]*meta.shape[0])  # Modeling subjects as splits
+        meta = meta.addcols([correct, Response, t_type, worker_ids],
                       names=['correct', 'Response', 'two_way_type', 'WorkerId'])
         trials.append(meta)
     return tb.tab_rowstack(trials)
