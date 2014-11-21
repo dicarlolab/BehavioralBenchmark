@@ -53,7 +53,7 @@ def store_two_way(F, two_way_type, train_config, collname, type_tag):
     results_fs = get_results_fs(collname)
     query = {'two_way_type': two_way_type}
     count = results_fs._GridFS__files.find(query).count()
-    if count == 1:
+    if count >= 1:
         idval = results_fs._GridFS__files.find_one(query)['_id']
         print 'Found %s as %s in %s'%(two_way_type, idval, collname)
     else:
@@ -63,7 +63,9 @@ def store_two_way(F, two_way_type, train_config, collname, type_tag):
                                         return_splits=True)
         info = utils.SONify(dict(two_way_type=two_way_type, type_tag=type_tag, eval_config=eval_config))
         blob = cPickle.dumps(results, protocol=cPickle.HIGHEST_PROTOCOL)
-        idval = results_fs.put(blob, **info)
+        count = results_fs._GridFS__files.find(query).count()
+        if count <1:
+            idval = results_fs.put(blob, **info)
         print 'Stored %s as %s in %s'%(two_way_type, idval, collname)
 
 
