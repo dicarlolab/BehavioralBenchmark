@@ -167,7 +167,7 @@ def get_trials(fs, type_tag):
     trials = []
     for rec in recs:
         results_dic = cPickle.loads(fs.get_last_version(_id=rec['_id']).read())
-        trials.append(trials_from_results_dic(results_dic))
+        trials.append(trials_from_results_dic(results_dic, rec['two_way_type']))
     return tb.tab_rowstack(trials)
 
 
