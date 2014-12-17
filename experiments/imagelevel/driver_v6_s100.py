@@ -4,13 +4,9 @@ import sys
 import copy
 import dldata.stimulus_sets.hvm as hvm
 from mturkutils.base import Experiment
+import experiments.image_level_benchmark
 
-REPEATS_PER_QE_IMG = 4
-ACTUAL_TRIALS_PER_HIT = 100
-LEARNING_PERIOD = 16
 
-repeat_inds = [3440, 3282, 3321, 3802, 5000, 3202, 4041, 4200]
-practice_inds = [880, 720, 760, 1240, 2440, 640, 1480, 1640, 3480, 3360, 4560, 3840, 5040, 3240, 4160, 4240]
 
 
 class SimpleMatchToSampleExperiment(Experiment):
@@ -44,6 +40,8 @@ class SimpleMatchToSampleExperiment(Experiment):
         assert sampling in ['without-replacement', 'with-replacement']
         html_data = self.html_data
 
+        # Get parameters from html data
+
         dataset = html_data.get('dataset')
         preproc = html_data.get('preproc')
         meta_query = html_data.get('meta_query')
@@ -58,15 +56,12 @@ class SimpleMatchToSampleExperiment(Experiment):
         meta = html_data.get('meta')
         n_hits = html_data.get('n_hits')
         idx_lrn = list(html_data.get('idx_lrn'))
-        idx_rep = list(html_data.get('idx_rep'))
         idx_smp = list(html_data.get('idx_smp'))
-        shuffle_test = html_data.get('shuffle_test', False)
+
 
         rng = np.random.RandomState(seed=seed)
         actual_trials_per_hit = len(idx_smp)
-        offsets = np.arange(actual_trials_per_hit - 3, -1, -actual_trials_per_hit / float(len(idx_rep))
-                ).round().astype('int')
-        
+
         imgs = []
         labels = []
         imgData = []
@@ -74,28 +69,22 @@ class SimpleMatchToSampleExperiment(Experiment):
         for _n in xrange(n_hits):
             ii = copy.deepcopy(idx_smp)
             rng.shuffle(ii)
-
+            response_image_for_this_combination = response_images[0]
             assert len(combs) == len(response_images) == 1
-            c, ri = combs[0], response_images[0]
 
-            for i, offset in enumerate(offsets):
-                ii.insert(offset, idx_rep[i])
-                ii_new = idx_lrn + ii
-            for i in ii_new:
+            for i in idx_lrn+ii:
                 sample = urls[i]
                 # sample_meta = meta[i]
                 meta0 = meta[i]
                 sample_meta = {name: value for name, value in
                              zip(meta0.dtype.names, meta0.tolist())}
                 
-                test = ri['urls']
-                test_meta = ri['meta']
-                lbls = ri['labels']
+                test = response_image_for_this_combination['urls']
+                test_meta = response_image_for_this_combination['meta']
+                lbls = response_image_for_this_combination['labels']
 
                 si = range(len(lbls))
                 assert len(si) == len(test) == len(test_meta)
-                if shuffle_test:
-                    rng.shuffle(si)
 
                 # write down one prepared trial
                 imgs.append([sample, [test[e] for e in si]])
@@ -135,26 +124,24 @@ class SimpleMatchToSampleExperiment(Experiment):
 
 
 def get_exp(sandbox=True, dummy_upload=True):
+    LEARNING_PERIOD = 10
+
+
+    practice_inds_low_var = range(0, 80, 10)
+    practice_inds_high_var = range(3200, 3200+90*8,90)
+    practice_inds = practice_inds_low_var+practice_inds_high_var
+
+    repeats_per_image =  2 ### 2
+    workers_per_image = 60
 
     dataset = hvm.HvMWithDiscfade()
     # meta = dataset.meta ###
     meta_H = dataset.meta ###
     #inds = np.arange(len(meta))
-    inds =np.asarray( [
-                 
-                  3227, 3274, 3315, 3354, 3360, 3389, 3401, 3423, 3442, 3463,
-                  3478, 3486, 3504, 3532, 3533, 3536, 3559, 3567, 3582, 3623,
-                  3642, 3657, 3678, 3706, 3730, 3736, 3742, 3746, 3749, 3759,
-                  3819, 3863, 3874, 3888, 3911, 3931, 3966, 3993, 3999, 4012,
-                  4028, 4040, 4085, 4100, 4179, 4282, 4290, 4297, 4329, 4352,
-                  4361, 4363, 4386, 4403, 4413, 4482, 4490, 4510, 4530, 4565,
-                  4566, 4597, 4608, 4668, 4716, 4724, 4727, 4735, 4750, 4789,
-                  4837, 4858, 4942, 4959, 4969, 4975, 4989, 5026, 5060, 5098,
-                  5108, 5145, 5154, 5222, 5282, 5292, 5295, 5296, 5308, 5313,
-                  5320, 5377, 5408, 5427, 5442, 5464, 5510, 5541, 5579, 5605]) ###
-
+    inds = experiments.image_level_benchmark.INDS
+    assert(len(set(practice_inds).intersection(set(inds))) == 0)
     meta = meta_H[inds] ###
-    n_hits_from_data = len(meta) / ACTUAL_TRIALS_PER_HIT
+    #n_hits_from_data = len(meta) / ACTUAL_TRIALS_PER_HIT
     categories =  np.unique(meta['category'])  # dataset.categories ###
     combs = [categories]
 
@@ -178,12 +165,11 @@ def get_exp(sandbox=True, dummy_upload=True):
                  {'category': 'Tables'}],
         'labels': categories}]
 
-    mult =  60 ### 2
-    ind_repeats = repeat_inds * REPEATS_PER_QE_IMG
-    rng = np.random.RandomState(0)
-    rng.shuffle(ind_repeats)
-    ind_learn = practice_inds
 
+    inds_shown_per_hit = inds*repeats_per_image
+    rng = np.random.RandomState(0)
+    ind_learn = practice_inds
+###############################################################
     html_data = {
             'response_images': response_images,
             'combs': combs,
@@ -191,17 +177,16 @@ def get_exp(sandbox=True, dummy_upload=True):
             'meta_field': 'category',
             'meta': meta_H,
             'idx_smp': inds,
-            'idx_rep': ind_repeats,
             'idx_lrn': ind_learn,
             'urls': urls,
-            'n_hits': mult,
+            'n_hits': workers_per_image,
             'shuffle_test': False,
     }
 
     additionalrules = [{'old': 'LEARNINGPERIODNUMBER',
                         'new':  str(LEARNING_PERIOD)}]
 
-    trials_per_hit = ACTUAL_TRIALS_PER_HIT + 32 + 16
+    trials_per_hit = len(inds_shown_per_hit)+len(practice_inds)
     exp = SimpleMatchToSampleExperiment(
             htmlsrc='hvm_dense_smp_v6_s100.html',
             htmldst='hvm_dense_smp_v6_s100_n%05d.html',

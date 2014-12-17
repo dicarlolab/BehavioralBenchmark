@@ -4,6 +4,7 @@ import numpy as np
 import dldata.stimulus_sets.hvm as hvm
 dataset = hvm.HvMWithDiscfade()
 meta = dataset.meta
+
 inds = []
 
 rng = np.random.RandomState(0)
@@ -25,5 +26,7 @@ def test_inds(inds):
         assert object_count[obj] == 4
 
 test_inds(inds)
+INDS = inds
+
 
 np.save('ImageLevelExperimentInds', np.array(inds))
