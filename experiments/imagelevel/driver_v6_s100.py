@@ -4,7 +4,8 @@ import sys
 import copy
 import dldata.stimulus_sets.hvm as hvm
 from mturkutils.base import Experiment
-import experiments.image_level_benchmark
+
+import  experiments.image_level_benchmark
 
 
 
@@ -138,6 +139,7 @@ def get_exp(sandbox=True, dummy_upload=True):
     # meta = dataset.meta ###
     meta_H = dataset.meta ###
     #inds = np.arange(len(meta))
+    
     inds = experiments.image_level_benchmark.INDS
     assert(len(set(practice_inds).intersection(set(inds))) == 0)
     meta = meta_H[inds] ###
