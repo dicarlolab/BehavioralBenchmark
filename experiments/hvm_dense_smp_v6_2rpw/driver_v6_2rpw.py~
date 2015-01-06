@@ -257,9 +257,7 @@ def get_exp(sandbox=True, dummy_upload=True):
             additionalrules=additionalrules,
             log_prefix='hvm_dense_smp_v6_2rpw__'
             )
-    ids = set(np.unique([m['Sample']['_id'] for m in exp._trials['imgData']]))
-    ids_test = np.load('first_experiment_ids')
-    assert ids == ids_test
+
     # -- create trials
     exp.createTrials(verbose=1)
     #exp.createTrials(sampling='with-replacement', verbose=1) ###
