@@ -147,36 +147,21 @@ def get_exp(sandbox=True, dummy_upload=True):
 
 
     n_repeats = 2
-    practice_inds_low_var = range(0, 80, 10)
-    practice_inds_mid_var = range(2560, 2560+90*8,90)
-    practice_inds = practice_inds_low_var+practice_inds_mid_var
-
-
-
-
-
-    inds = []
-    for obj in np.unique(meta_H['obj']):
-        Objs_V6 = meta_H[(meta_H['obj'] == obj) & (meta_H['var'] == 'V6')]['_id']
-        sampObj_V6 = rand.sample(Objs_V6,2)
-        indsObj = []
-        for s in sampObj_V6:
-            indsObj .append([i for i,v in enumerate(meta_H['_id']) if v == s ][0])
-        inds.extend(indsObj)
-
-    if n_repeats > 1:
-        inds_unique = deepcopy(inds)
-        # Concatenate the inds n_repeat times
-        for nr in range(n_repeats-1):
-            inds = inds + inds_unique
-
+    #get inds and practice_inds from file
+    inds = list(np.load('inds.npy'))
+    practice_inds = list(np.load('practice_inds.npy'))
+    assert len(inds) == 128
+    inds = inds*n_repeats
 
     def test_inds(inds,n_repeats, practice_inds):
         assert len(inds) == 128*n_repeats
         #Test that there are 4 per object, and 64 objects
         object_count = {}
         for i in inds:
+            print 'Counting object %s'%(meta_H['obj'][i])
             object_count[meta_H['obj'][i]] = object_count.get(meta_H['obj'][i], 0) + 1
+        print 'Number of unique objects'
+        print object_count.keys()
         print len(object_count.keys())
         assert len(object_count.keys()) == 64
         for obj in object_count.keys():
@@ -257,11 +242,13 @@ def get_exp(sandbox=True, dummy_upload=True):
             additionalrules=additionalrules,
             log_prefix='hvm_dense_smp_v6_2rpw__'
             )
-    ids = set(np.unique([m['Sample']['_id'] for m in exp._trials['imgData']]))
-    ids_test = np.load('first_experiment_ids')
-    assert ids == ids_test
     # -- create trials
     exp.createTrials(verbose=1)
+    all_ids = [m['Sample']['_id'] for m in exp._trials['imgData']]
+    ids = set([str(_) for _ in np.unique(all_ids)])
+    ids_test = set([str(_) for _ in np.load('first_experiment_ids.npy')])
+    assert len(ids) == len(ids_test)
+    assert ids == ids_test
     #exp.createTrials(sampling='with-replacement', verbose=1) ###
     n_total_trials = len(exp._trials['imgFiles'])
     #assert n_total_trials == mult * (len(meta) + 32 + 16) ###
