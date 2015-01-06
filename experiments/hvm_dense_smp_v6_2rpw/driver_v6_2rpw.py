@@ -238,7 +238,7 @@ def get_exp(sandbox=True, dummy_upload=True):
             trials_per_hit=trials_per_hit,  # 144 + 8x4 repeats + 16 training
             html_data=html_data,
             frame_height_pix=1200,
-            othersrc = ['../../lib/dltk.js', '../../lib/dltkexpr.js', '../../lib/dltkrsvp.js'],
+            othersrc = ['dltk.js', 'dltkexpr.js', 'dltkrsvp.js'],
             additionalrules=additionalrules,
             log_prefix='hvm_dense_smp_v6_2rpw__'
             )
