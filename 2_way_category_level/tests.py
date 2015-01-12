@@ -1,11 +1,13 @@
 __author__ = 'ardila'
 import dldata.human_data.confusion_matrices as CM
-import all_metrics
 import dldata.metrics.utils as u
-import os
+
+import all_metrics
 from benchmark import benchmark
 import hvm_2way_consistency as h
 import get_model_results as g
+
+
 def test_all_metrics():
     trials = CM.get_data('hvm_basic_categorization_new', 'category')
 
@@ -44,13 +46,7 @@ def test_nyu_subordinate_consistency():
 
 
 def test_hmo_consistency():
-    human_data = h.get_subordinate_human_data()
-    print 'Human Split Half dp consistency'
-    consistency_kwargs = {'metric':'dp_standard', 'kwargs':None, 'split_field':'two_way_type',
-                          'image_property':'obj', 'response_property':'Response', 'bstrapiter': 3}
     feature_name = 'pht2_features_2'
-    model_data = g.get_model_behavior(feature_name, 'subordinate')
-    h.store_consistency(feature_name+'_results', 'subordinate')
-    print h.trial_split_consistency(human_data, model_data, **consistency_kwargs)
+    h.store_consistency(feature_name, 'all')
 
 test_hmo_consistency()

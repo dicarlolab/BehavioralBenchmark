@@ -1,9 +1,10 @@
 __author__ = 'ardila'
-from all_metrics import cache_composite_individual_self_consistency_all_metrics
 import dldata.human_data.confusion_matrices as CM
 import itertools
 from joblib import Parallel, delayed
-import sys
+
+from all_metrics import cache_composite_individual_self_consistency_all_metrics
+
 image_properties = ['task_category', 'obj', 'filename']
 response_properties = ['Response', 'correct']
 

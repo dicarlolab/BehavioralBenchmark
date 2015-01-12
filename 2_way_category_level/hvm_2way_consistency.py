@@ -4,9 +4,11 @@ import numpy as np
 import dldata.metrics.utils as u
 import scipy.stats
 import pymongo as pm
+import tabular as tb
+
 import get_model_results as g
 import utils
-import tabular as tb
+
 
 benchmark_db = pm.MongoClient(port=22334)['BehavioralBenchmark']
 
@@ -142,13 +144,13 @@ def trial_split_consistency(data1, data2, metric, split_field,
 
         # Split first data
         inds1 = rng.permutation(range(data1.shape[0]))
-        inds11, inds12 = inds1[:inds1.shape[0] / 2], inds1[inds1.shape[0] / 2:]
+        inds11, inds12 = inds1[:(inds1.shape[0] / 2)], inds1[(inds1.shape[0] / 2):]
         RMs11 = get_rms(data1[inds11], split_field, image_property, response_property)
         RMs12 = get_rms(data1[inds12], split_field, image_property, response_property)
 
         #Split second data
         inds2 = rng.permutation(range(data1.shape[0]))
-        inds21, inds22 = inds2[:inds2.shape[0] / 2], inds2[inds2.shape[0] / 2:]
+        inds21, inds22 = inds2[:(inds2.shape[0] / 2)], inds2[(inds2.shape[0] / 2):]
         RMs21 = get_rms(data1[inds21], split_field, image_property, response_property)
         RMs22 = get_rms(data1[inds22], split_field, image_property, response_property)
 
@@ -164,11 +166,12 @@ def trial_split_consistency(data1, data2, metric, split_field,
         R1, _ = scipy.stats.spearmanr(m11, m21)
         R2, _ = scipy.stats.spearmanr(m11, m22)
         R3, _ = scipy.stats.spearmanr(m12, m21)
-        R4, _ = scipy.stats.spearmanr(m11, m22)
+        R4, _ = scipy.stats.spearmanr(m12, m22)
         ICs1.append(IC1)
         ICs2.append(IC2)
         consistencies.extend([R1 / noise, R2 / noise, R3 / noise, R4 / noise])
-    return np.mean(consistencies), np.std(consistencies), np.mean(ICs1), np.std(ICs2), np.mean(ICs1), np.mean(ICs2)
+    print np.mean(consistencies), np.std(consistencies), np.mean(ICs1), np.std(ICs1), np.mean(ICs2), np.std(ICs2)
+    return np.mean(consistencies), np.std(consistencies), np.mean(ICs1), np.std(ICs1), np.mean(ICs2), np.std(ICs2)
 
 
 def store_consistency(behavior_name, consistency_type):
@@ -183,14 +186,14 @@ def store_consistency(behavior_name, consistency_type):
     elif consistency_type == 'all':
         human_data = tb.tab_rowstack([get_basic_human_data(),
                                       get_subordinate_human_data()])
-        model_data = tb.tab_rowstack([g.get_trials(behavior_name, 'basic'),
-                                      g.get_trials(behavior_name, 'subordinate')])
+        model_data = tb.tab_rowstack([g.get_model_behavior(behavior_name, 'basic'),
+                                      g.get_model_behavior(behavior_name, 'subordinate')])
     else:
         print "%s Not recognized as a consistency type" % consistency_type
         raise ValueError
 
     consistency_kwargs = {'metric': 'dp_standard', 'kwargs': None, 'split_field': 'two_way_type',
-                          'image_property': 'obj', 'response_property': 'Response', 'bstrapiter': 3}
+                          'image_property': 'task_category', 'response_property': 'Response', 'bstrapiter': 3}
     results = {'consistency_kwargs': consistency_kwargs}
     results[results_key_name] = trial_split_consistency(human_data, model_data, **consistency_kwargs)
     results_coll.insert(utils.SONify(results))

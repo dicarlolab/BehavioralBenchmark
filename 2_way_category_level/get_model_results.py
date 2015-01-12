@@ -5,12 +5,13 @@ import itertools
 import numpy as np
 import dldata.metrics.utils as u
 import pymongo as pm
-import utils as utils
-import hvm_2way_consistency as h
 import tabular as tb
 import gridfs
 import cPickle
 import copy
+
+import utils as utils
+
 dataset = hvm.HvMWithDiscfade()
 
 DB = pm.MongoClient(port=22334)['ModelBehavior']
@@ -171,7 +172,7 @@ def get_trials(fs, type_tag):
     return tb.tab_rowstack(trials)
 
 
-def trials_from_results_dic(results_dic, two_way_type):
+def trials_from_results_dic(results_dic, two_way_type, label_field):
     trials = []
     for i, split in enumerate(results_dic['splits'][0]):
         split_results = results_dic['split_results'][i]
