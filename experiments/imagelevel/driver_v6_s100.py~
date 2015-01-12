@@ -139,7 +139,7 @@ def get_exp(sandbox=True, dummy_upload=True):
     # meta = dataset.meta ###
     meta_H = dataset.meta ###
     #inds = np.arange(len(meta))
-    
+    import BehavioralBenchmark.experiments.image_level_benchmark
     inds = experiments.image_level_benchmark.INDS
     assert(len(set(practice_inds).intersection(set(inds))) == 0)
     meta = meta_H[inds] ###
