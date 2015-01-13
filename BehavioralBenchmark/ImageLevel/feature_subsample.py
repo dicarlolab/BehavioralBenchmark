@@ -1,9 +1,7 @@
+from BehavioralBenchmark.ImageLevel import store_feature_results, feature_loader
+
 __author__ = 'ardila'
 import sys
-import feature_loader
-import decoder_models
-import store_feature_results
-import dldata.stimulus_sets.hvm as hvm
 
 
 feature_name = sys.argv[1]

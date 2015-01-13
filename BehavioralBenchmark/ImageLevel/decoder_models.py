@@ -1,6 +1,6 @@
 __author__ = 'ardila'
 
-from ..experiments import hvm_dense_smp_v6_2rpw
+from BehavioralBenchmark.experiments import hvm_dense_smp_v6_2rpw
 import os
 import numpy as np
 
