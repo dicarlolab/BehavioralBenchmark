@@ -1,7 +1,8 @@
+from BehavioralBenchmark import extrapolation
+
 __author__ = 'ardila'
 
 import numpy as np
-import extrapolation
 
 
 def test_basic_exponential_fit():
