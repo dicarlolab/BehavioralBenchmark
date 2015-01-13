@@ -4,6 +4,7 @@ __author__ = 'ardila'
 
 def get_features_by_name(feature_name):
 
+# TODO: Add support for NYU and other features
 
     if feature_name == 'IT':
         import dldata.stimulus_sets.hvm as hvm
@@ -19,4 +20,7 @@ def get_features_by_name(feature_name):
 
     return features, meta
 
-    # TODO: Add support for NYU and other features
+
+def get_size_by_name(feature_name):
+    # TODO this could be more efficient...
+    return get_features_by_name(feature_name).shape[1]

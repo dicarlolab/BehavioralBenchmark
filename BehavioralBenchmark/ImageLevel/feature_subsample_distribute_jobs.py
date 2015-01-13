@@ -2,10 +2,15 @@ __author__ = 'ardila'
 import sys
 import os
 from feature_split import feature_split
+from feature_loader import get_size_by_name
 
 feature_name = sys.argv[1]
 
-feature_splits = feature_split(n_features, n_sample, n_bootstrap)
+
+n_features = get_size_by_name(feature_name)
+feature_splits = feature_split(n_features=n_features,
+                               n_samples = 40,
+                               n_bootstrap = 1)
 
 
 for feature_split in feature_splits:
