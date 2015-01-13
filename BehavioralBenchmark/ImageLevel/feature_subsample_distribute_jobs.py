@@ -4,12 +4,17 @@ import os
 from feature_split import feature_split
 from feature_loader import get_size_by_name
 
+### Used to distribute jobs on openmind for feature subsampling
+#### Usage: python feature_subsample_distribute_jobs.py 'feature_name'
+#### Make sure feature_name is recognized by feature_loader.py
+
+
 feature_name = sys.argv[1]
 
 
 n_features = get_size_by_name(feature_name)
-feature_splits = feature_split(n_features=n_features,
-                               n_samples = 40,
+feature_splits = feature_split(n_features=4,
+                               n_samples = 1,
                                n_bootstrap = 1)
 
 
