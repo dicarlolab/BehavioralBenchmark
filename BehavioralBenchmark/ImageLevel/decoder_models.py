@@ -18,6 +18,6 @@ StandardModel = dict(name='StandardModel',
                                                                                   .75e-3,
                                                                                   1e-2, .25e-2, .5e-2, .75e-2, 1e-1, 1,
                                                                                   10]},
-                                                     'GridSearchCV_kwargs': {'n_jobs': 22}}
+                                                     'GridSearchCV_kwargs': {'n_jobs': 13}}
                      })
 
