@@ -3,11 +3,11 @@ __author__ = 'ardila'
 from BehavioralBenchmark.experiments import hvm_dense_smp_v6_2rpw
 import os
 import numpy as np
-
+import dldata.stimulus_sets.hvm as hvm
 
 # This is the image set used in the first set of image level experiments, 2 from each object
-ImageSet1 = np.load(os.path.join(os.path.dirname(hvm_dense_smp_v6_2rpw.__file__), 'inds.npy'))
-
+ImageSet1_inds = np.load(os.path.join(os.path.dirname(hvm_dense_smp_v6_2rpw.__file__), 'inds.npy'))
+ImageSet1 = hvm.HvMWithDiscfade().meta['filename'][ImageSet1_inds]
 StandardModel = dict(name='StandardModel',
                      train_q=lambda x: ((x['var'] in 'V6' ) and (x['_id'] not in ImageSet1)),
                      test_q=lambda x: (x['_id'] in ImageSet1), labelfunc='category', split_by=None, npc_train=None,
