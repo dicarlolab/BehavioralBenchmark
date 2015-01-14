@@ -6,13 +6,14 @@ import datetime
 import numpy as np
 import collections
 from bson import ObjectId
+import copy
 
 def SONify(arg, memo=None):
     """
     A utility to convert python objects into a format ok for storing in the database
     :param arg: Document being stored
     :param memo: Additional info to store
-    :return: :raise TypeError: SONified document
+    :return: SONified document
     """
     if memo is None:
         memo = {}
@@ -60,9 +61,10 @@ def store_compute_metric_results(F, meta, eval_config, fs, additional_info):
     :return: tuple of results from compute_metric_base and the id of the record stored
     """
     results = compute_metric_base(F, meta, eval_config)
-    additional_info['eval_config'] = eval_config
+    additional_info['eval_config'] = SONify(copy.deepcopy(eval_config))
     blob = cPickle.dumps(results, protocol=cPickle.HIGHEST_PROTOCOL)
-    idval = fs.put(blob, **SONify(additional_info))
+    additional_info_SON = SONify(additional_info)
+    idval = fs.put(blob, **additional_info_SON)
     return results, idval
 
 
@@ -78,8 +80,8 @@ def store_subsampled_feature_results(F, meta, eval_config, fs, feature_inds, add
     :param additional_info: Additional info about this classifier experiment
     :return: tuple of results from compute_metric_base and the id of the record stored
     """
-    F = F[:, feature_inds]
-    store_compute_metric_results(F, meta, eval_config, fs, additional_info)
+    F = np.copy(F[:, feature_inds])
+    return store_compute_metric_results(F, meta, eval_config, fs, additional_info)
 
 
 

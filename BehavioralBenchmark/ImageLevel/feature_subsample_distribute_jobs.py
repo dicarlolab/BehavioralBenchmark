@@ -13,9 +13,10 @@ feature_name = sys.argv[1]
 
 
 n_features = get_size_by_name(feature_name)
-feature_splits = feature_split(n_features=4,
-                               n_samples = 1,
-                               n_bootstrap = 1)
+feature_splits = feature_split(n_features = n_features,
+                               n_samples = 40,
+                               n_bootstrap = 2,
+                               max_samples_per_size = 50)
 
 
 for feature_split in feature_splits:
