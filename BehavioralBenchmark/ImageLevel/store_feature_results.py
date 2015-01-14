@@ -78,7 +78,7 @@ def store_subsampled_feature_results(F, meta, eval_config, fs, feature_inds, add
     :param additional_info: Additional info about this classifier experiment
     :return: tuple of results from compute_metric_base and the id of the record stored
     """
-    F = F[:, feature_inds]
+    F = np.copy(F[:, feature_inds])
     store_compute_metric_results(F, meta, eval_config, fs, additional_info)
 
 

@@ -20,14 +20,17 @@ class TestFeatureStorage(unittest.TestCase):
         self.decoder_model = decoder_model
         self.meta = meta
         self.fs = fs
-        self.feature_inds = [1,2,3,4]
+        self.feature_inds = feature_split
         self.additional_info = additional_info
         self.ids = []
 
     def test_store_subsampled_features(self):
         idval, results = store_feature_results.store_subsampled_feature_results(self.F, self.meta,
-                                                               self.decoder_model,
-                                                               self.fs, self.feature_inds, self.additional_info)
+                                                                                self.decoder_model,
+                                                                                self.fs,
+                                                                                self.feature_inds,
+                                                                                self.additional_info)
+
         self.ids.append(idval)
 
     def tearDown(self):
