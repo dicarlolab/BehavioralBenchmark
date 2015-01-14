@@ -3,7 +3,7 @@ import unittest
 import pymongo as pm
 from BehavioralBenchmark.ImageLevel import feature_loader, decoder_models, feature_split, store_feature_results
 import gridfs
-
+import numpy as np
 
 class TestFeatureStorage(unittest.TestCase):
     def setUp(self):
@@ -30,6 +30,12 @@ class TestFeatureStorage(unittest.TestCase):
                                                                                 self.fs,
                                                                                 self.feature_inds,
                                                                                 self.additional_info)
+        desired_split = decoder_models.ImageSet1_inds
+        test_split = np.array(results['splits'][0][0]['test'])
+        new_order = np.argsort(test_split)
+        test_split = test_split[new_order]
+        self.assertItemsEqual(desired_split, test_split)
+
         self.ids.append(idval)
 
     def tearDown(self):

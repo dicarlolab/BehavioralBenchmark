@@ -50,6 +50,13 @@ def SONify(arg, memo=None):
     memo[id(rval)] = rval
     return rval
 
+def get_metric_ready_result(results):
+    test_split = np.array(results['splits'][0][0]['test'])
+    new_order = np.argsort(test_split)
+    correct = results['split_results'][0]['test_errors'][new_order]
+    return correct
+
+
 def store_compute_metric_results(F, meta, eval_config, fs, additional_info):
     """
     Used to store results of a decoder model (as specified by eval_config) on top of features F
@@ -60,10 +67,14 @@ def store_compute_metric_results(F, meta, eval_config, fs, additional_info):
     :param additional_info: Additional info about this classifier experiment
     :return: tuple of results from compute_metric_base and the id of the record stored
     """
-    results = compute_metric_base(F, meta, eval_config)
+    results = compute_metric_base(F, meta, eval_config, return_splits=True)
     additional_info['eval_config'] = SONify(copy.deepcopy(eval_config))
     blob = cPickle.dumps(results, protocol=cPickle.HIGHEST_PROTOCOL)
+    M = get_metric_ready_result(results)
+    additional_info['metric_ready_result'] = M
     additional_info_SON = SONify(additional_info)
+
+
     idval = fs.put(blob, **additional_info_SON)
     return results, idval
 
