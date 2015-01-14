@@ -1,6 +1,7 @@
 __author__ = 'ardila'
 
 
+from bson import ObjectId
 
 def get_features_by_name(feature_name):
 
@@ -18,6 +19,14 @@ def get_features_by_name(feature_name):
         features = dataset.neuronal_features[:, dataset.V4_NEURONS]
         meta = dataset.meta
 
+    elif feature_name == 'NYU':
+        import dldata.stimulus_sets.hvm as hvm
+        dataset = hvm.HvMWithDiscfade()
+        features = dataset.get_features(
+            dict(crop=None, dtype=u'float32', mask=None, mode=u'RGB', normalize=False, resize_to=[256, 256]),
+                               ObjectId('542927872c39ac23120db840'),
+                               u'fc6')[:]
+        meta = dataset.meta
 
     return features, meta
 
