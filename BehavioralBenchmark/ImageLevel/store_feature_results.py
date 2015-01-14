@@ -53,7 +53,8 @@ def SONify(arg, memo=None):
 def get_metric_ready_result(results):
     test_split = np.array(results['splits'][0][0]['test'])
     new_order = np.argsort(test_split)
-    correct = results['split_results'][0]['test_errors'][new_order]
+    wrong = np.squeeze(np.array(results['split_results'][0]['test_errors']))
+    correct = wrong[new_order]
     return correct
 
 
