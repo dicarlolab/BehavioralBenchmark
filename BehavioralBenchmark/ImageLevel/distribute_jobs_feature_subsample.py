@@ -3,6 +3,9 @@ import sys
 import os
 from feature_split import feature_split
 from feature_loader import get_size_by_name
+import store_feature_results
+import pymongo as pm
+
 
 ### Used to distribute jobs on openmind for feature subsampling
 #### Usage: python feature_subsample_distribute_jobs.py 'feature_name'
@@ -10,7 +13,10 @@ from feature_loader import get_size_by_name
 
 
 feature_name = sys.argv[1]
+decoder_model_name = 'StandardModel'
 
+fs = store_feature_results.get_gridfs(decoder_model_name=decoder_model_name,
+                                      feature_name=feature_name)
 
 n_features = get_size_by_name(feature_name)
 feature_splits = feature_split(n_features = n_features,

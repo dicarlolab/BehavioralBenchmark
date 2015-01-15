@@ -9,6 +9,8 @@ DB = pm.MongoClient(port=22334)['ModelBehavior']
 
 feature_name = sys.argv[1]
 
+decoder_model_name = 'StandardModel' # Can make this an option later
+
 feature_split = [int(ind) for ind in sys.argv[2].split(',')]
 
 # Load feature from name
@@ -17,11 +19,10 @@ features, meta = feature_loader.get_features_by_name(feature_name)
 
 # For now, this always uses the standard decoder model, but this can be reconfigured easily
 
-decoder_model = decoder_models.StandardModel
+decoder_model = decoder_models.get_decoder_model_by_name(decoder_model_name)
 
-gridfs_name = '_'.join([decoder_model['name'], feature_name, 'results'])
 
-fs = gridfs.GridFS(DB, gridfs_name) # Decide where to store things
+fs = store_feature_results.get_gridfs(decoder_model_name=decoder_model)# Decide where to store things
 
 additional_info = {'feature_split': feature_split}
 

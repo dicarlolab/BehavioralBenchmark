@@ -50,6 +50,9 @@ def SONify(arg, memo=None):
     memo[id(rval)] = rval
     return rval
 
+def get_gridfs(decoder_model_name, feature_name):
+    return '_'.join([decoder_model_name, feature_name, 'results'])
+
 def get_metric_ready_result(results):
     test_split = np.array(results['splits'][0][0]['test'])
     new_order = np.argsort(test_split)
