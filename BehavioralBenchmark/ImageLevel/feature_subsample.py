@@ -5,7 +5,7 @@ import sys
 import gridfs
 import pymongo as pm
 
-DB = pm.MongoClient(port=22334)['ModelBehavior']
+
 
 feature_name = sys.argv[1]
 
