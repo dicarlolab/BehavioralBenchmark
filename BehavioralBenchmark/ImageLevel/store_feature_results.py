@@ -5,8 +5,12 @@ import cPickle
 import datetime
 import numpy as np
 import collections
+import gridfs
+import pymongo as pm
 from bson import ObjectId
 import copy
+
+DB = pm.MongoClient(port=22334)['ModelBehavior']
 
 def SONify(arg, memo=None):
     """
@@ -49,6 +53,19 @@ def SONify(arg, memo=None):
         raise TypeError('SONify', arg)
     memo[id(rval)] = rval
     return rval
+
+
+def get_name(decoder_model_name, feature_name):
+    return '_'.join([decoder_model_name, feature_name, 'results'])
+
+
+def get_file_collection(decoder_model_name, feature_name):
+    collname = get_name(decoder_model_name, feature_name)+'.files'
+    return DB[collname]
+
+def get_gridfs(decoder_model_name, feature_name):
+    name = get_name(decoder_model_name, feature_name)
+    return gridfs.GridFS(DB, name)
 
 def get_metric_ready_result(results):
     test_split = np.array(results['splits'][0][0]['test'])

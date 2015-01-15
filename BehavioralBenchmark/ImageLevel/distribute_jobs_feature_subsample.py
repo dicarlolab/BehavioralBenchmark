@@ -3,6 +3,9 @@ import sys
 import os
 from feature_split import feature_split
 from feature_loader import get_size_by_name
+import store_feature_results
+import pymongo as pm
+
 
 ### Used to distribute jobs on openmind for feature subsampling
 #### Usage: python feature_subsample_distribute_jobs.py 'feature_name'
@@ -10,7 +13,13 @@ from feature_loader import get_size_by_name
 
 
 feature_name = sys.argv[1]
+decoder_model_name = 'StandardModel'
 
+coll = store_feature_results.get_file_collection(decoder_model_name=decoder_model_name,
+                                                 feature_name=feature_name)
+
+
+precalculated = set([str(e['feature_split']) for e in coll.find()])
 
 n_features = get_size_by_name(feature_name)
 feature_splits = feature_split(n_features = n_features,
@@ -20,7 +29,8 @@ feature_splits = feature_split(n_features = n_features,
 
 
 for feature_split in feature_splits:
-    # Submit a job to slurm that runs store_feature_results on the named features
-    feature_split = ','.join(str(ind) for ind in feature_split)
-    command = 'sbatch -n 11 --mem=250000 run_feature_subsample.sh %s %s'%(feature_name, feature_split)
-    os.system(command)
+    if str(feature_split) not in precalculated:
+        # Submit a job to slurm that runs store_feature_results on the named features
+        feature_split = ','.join(str(ind) for ind in feature_split)
+        command = 'sbatch -n 11 --mem=250000 run_feature_subsample.sh %s %s'%(feature_name, feature_split)
+        os.system(command)
