@@ -61,9 +61,8 @@ def empirical_consistency(M,n_boots):
 
 
     def empirical_consistency_to_Humans(Human_reps,M,n_boots):
-        # It fetchs the human data and
-        # Calculate the emperical consistencies of human data and the given M (Model)
-        # It also compute the individual human to pool empirical consistency  
+        
+        # It computes the individual human to pool empirical consistency  
 
         
         if len(M.shape) == 1:
@@ -136,25 +135,7 @@ def empirical_consistency(M,n_boots):
     
     return Consistencies,normalized_humans_to_pool_consistencies
 
-# <codecell>
 
-empirical_consistency(M,10)
-
-# <codecell>
-
-
-# <codecell>
-
-M = np.asarray([ 0.,  0.,  1.,  0.,  1.,  1.,  1.,  1.,  1.,  0.,  1.,  1.,  1.,
-        0.,  1.,  1.,  1.,  1.,  1.,  0.,  1.,  1.,  1.,  1.,  0.,  0.,
-        1.,  1.,  1.,  1.,  0.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  0.,
-        0.,  1.,  1.,  1.,  0.,  1.,  1.,  1.,  1.,  1.,  0.,  0.,  1.,
-        0.,  0.,  0.,  0.,  0.,  1.,  1.,  0.,  1.,  0.,  0.,  0.,  1.,
-        0.,  1.,  1.,  1.,  1.,  0.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,
-        1.,  1.,  1.,  1.,  0.,  1.,  1.,  1.,  0.,  1.,  1.,  0.,  0.,
-        1.,  1.,  0.,  0.,  0.,  0.,  1.,  1.,  1.,  0.,  1.,  0.,  1.,
-        0.,  1.,  1.,  0.,  0.,  1.,  1.,  1.,  1.,  1.,  1.,  0.,  0.,
-        1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.])
 
 # <codecell>
 
