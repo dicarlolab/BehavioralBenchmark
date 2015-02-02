@@ -11,7 +11,7 @@ class TestFeatureStorage(unittest.TestCase):
         feature_name = 'IT'
         feature_split = [1, 2]
         features, meta = feature_loader.get_features_by_name(feature_name)
-        decoder_model = decoder_models.StandardModel
+        decoder_model = decoder_models.get_decoder_model_by_name('StandardModel')
         gridfs_name = '_'.join([decoder_model['name'], feature_name, 'results'])+'TEST'
         fs = gridfs.GridFS(DB, gridfs_name) # Decide where to store things
         additional_info = {'feature_split': feature_split, 'test': True}

@@ -22,7 +22,8 @@ features, meta = feature_loader.get_features_by_name(feature_name)
 decoder_model = decoder_models.get_decoder_model_by_name(decoder_model_name)
 
 
-fs = store_feature_results.get_gridfs(decoder_model_name=decoder_model)# Decide where to store things
+fs = store_feature_results.get_gridfs(decoder_model_name=decoder_model_name, # Decide where to store things
+                                      feature_name=feature_name)
 
 additional_info = {'feature_split': feature_split}
 

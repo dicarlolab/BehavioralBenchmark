@@ -94,6 +94,7 @@ def store_compute_metric_results(F, meta, eval_config, fs, additional_info):
 
 
     idval = fs.put(blob, **additional_info_SON)
+    print 'Stored results in %s'%idval
     return results, idval
 
 

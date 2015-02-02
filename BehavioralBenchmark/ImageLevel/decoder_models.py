@@ -22,7 +22,7 @@ def get_decoder_model_by_name(decoder_model_name):
                                                                                          .75e-3,
                                                                                          1e-2, .25e-2, .5e-2, .75e-2, 1e-1, 1,
                                                                                          10]},
-                                                            'GridSearchCV_kwargs': {'n_jobs': 13}}
+                                                            'GridSearchCV_kwargs': {'n_jobs': 1}}
                          }}
         return model
 
