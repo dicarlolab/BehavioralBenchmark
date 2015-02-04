@@ -13,7 +13,7 @@ import pymongo as pm
 
 
 feature_name = sys.argv[1]
-decoder_model_name = 'StandardModel'
+decoder_model_name = 'StandardModelWithMargins'
 
 coll = store_feature_results.get_file_collection(decoder_model_name=decoder_model_name,
                                                  feature_name=feature_name)
