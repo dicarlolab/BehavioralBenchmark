@@ -11,7 +11,7 @@ import numpy as np
 from decoder_models import ImageSet1_inds
 from copy import deepcopy
 
-rng = np.random.RandomState(0)
+
 
 def get_human_data_densely_sampled():
     dataset = hvm.HvMWithDiscfade()
@@ -64,14 +64,19 @@ def get_human_data_densely_sampled():
 def empirical_consistency_to_humans(human_reps, M, number_of_iterations):
 
     # It computes the individual human to pool empirical consistency
-
+    rng = np.random.RandomState(0)
     if len(M.shape) == 1:
-        consistencies = [metric(M, human_reps.mean(1))]
+        consistency_uncorrected = metric(M, human_reps.mean(1))
+        consistencies = np.zeros(number_of_iterations)
+        for nb in range(number_of_iterations):
+            spH0, spH1 = split_half_reps(human_reps, rng)
+            consistencies[nb] = consistency_uncorrected/metric(spH0, spH1)
+        return consistencies
     else:
         consistencies = np.zeros(number_of_iterations)
         for nb in range(number_of_iterations):
-            spH0, spH1 = split_half_reps(human_reps)
-            spM0, spM1 = split_half_reps(M)
+            spH0, spH1 = split_half_reps(human_reps, rng)
+            spM0, spM1 = split_half_reps(M, rng)
 
             HH = metric(spH0, spH1)
             MM = metric(spM0, spM1)
@@ -118,7 +123,8 @@ def metric(x, y):
     # returns the pearson correlation of inputs
     return ss.pearsonr(x, y)[0]
 
-def split_half_reps(x):
+def split_half_reps(x, rng):
+
     # Splits the X into two columns and retrun the mean of each split
     n_reps = x.shape[1]
     shuffrange = range(n_reps)
