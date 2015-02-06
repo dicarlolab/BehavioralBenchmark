@@ -35,5 +35,10 @@ def get_decoder_model_by_name(decoder_model_name):
         model = get_decoder_model_by_name('StandardModel')
         model['metric_kwargs']['margins'] = True
         return model
+
+    if decoder_model_name == 'LogisticRegressionModel':
+        model = get_decoder_model_by_name('StandardModel')
+        model['metric_kwargs']['model_type'] = 'linear_model.LogisticRegression'
+        return model
     else:
         raise ValueError, 'Model not recognized'

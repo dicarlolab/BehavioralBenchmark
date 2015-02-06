@@ -5,6 +5,7 @@ from feature_split import feature_split
 from feature_loader import get_size_by_name
 import store_feature_results
 import pymongo as pm
+import time
 
 
 ### Used to distribute jobs on openmind for feature subsampling
@@ -34,6 +35,7 @@ print len(precalculated)/float(len(feature_splits))
 for feature_split in feature_splits:
     if str(feature_split) not in precalculated:
         # Submit a job to slurm that runs store_feature_results on the named features
+        time.sleep(.2)
         feature_split = ','.join(str(ind) for ind in feature_split)
         command = 'sbatch -n 1 --mem=5000 run_feature_subsample.sh %s %s'%(feature_name, feature_split)
         os.system(command)

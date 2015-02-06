@@ -121,7 +121,7 @@ def normalized_human_to_pool_consistency(human_individuals):
 
 def metric(x, y):
     # returns the pearson correlation of inputs
-    return ss.pearsonr(x, y)[0]
+    return ss.spearmanr(x, y)[0]
 
 def split_half_reps(x, rng):
 
