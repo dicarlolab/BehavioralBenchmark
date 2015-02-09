@@ -94,7 +94,7 @@ def get_metric_ready_result(results, desired_order=decoder_models.ImageSet1_inds
 
     test_split = np.array(results['splits'][0][0]['test'])
     new_order = reorder_to(test_split, desired_order)
-    probs = results['split_results'][0].get('probabilities')
+    probs = results['split_results'][0].get('test_probabilities')
     if probs is None:
         correct = np.squeeze(np.array(results['split_results'][0]['test_errors']))
         correct = correct[new_order]
