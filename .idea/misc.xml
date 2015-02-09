@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="ProjectRootManager" version="2" project-jdk-name="MH17" project-jdk-type="Python SDK" />
+  <component name="IpnbSettings">
+    <option name="URL" value="http://mh17.mit.edu:20002" />
+  </component>
+  <component name="ProjectRootManager" version="2" project-jdk-name="Remote Python 2.7.3 (ssh://ardila@mh17.mit.edu:22/mindhive/dicarlolab/u/ardila/virtual_environments/default/bin/python)" project-jdk-type="Python SDK" />
 </project>
-

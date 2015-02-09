@@ -14,7 +14,7 @@ import time
 
 
 feature_name = sys.argv[1]
-decoder_model_name = 'StandardModelWithMargins'
+decoder_model_name = sys.argv[2]
 
 coll = store_feature_results.get_file_collection(decoder_model_name=decoder_model_name,
                                                  feature_name=feature_name)

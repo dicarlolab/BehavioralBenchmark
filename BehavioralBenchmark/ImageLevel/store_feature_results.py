@@ -9,6 +9,7 @@ import gridfs
 import pymongo as pm
 from bson import ObjectId
 import copy
+import decoder_models
 
 DB = pm.MongoClient(port=22334)['ModelBehavior']
 
@@ -54,6 +55,28 @@ def SONify(arg, memo=None):
     memo[id(rval)] = rval
     return rval
 
+def perminverse(s):
+    '''
+    Fast inverse of a (numpy) permutation.
+    **Paramters**
+            **s** :  sequence
+                    Sequence of indices giving a permutation.
+    **Returns**
+            **inv** :  numpy array
+                    Sequence of indices giving the inverse of permutation `s`.
+    '''
+    X = np.array(range(len(s)))
+    X[s] = range(len(s))
+    return X
+
+
+def reorder_to(A, B):
+    C = A.copy()
+    C.sort()
+    s = np.searchsorted(C, B)
+    t = np.searchsorted(C, A)
+    return perminverse(t)[s]
+
 
 def get_name(decoder_model_name, feature_name):
     return '_'.join([decoder_model_name, feature_name, 'results'])
@@ -67,12 +90,17 @@ def get_gridfs(decoder_model_name, feature_name):
     name = get_name(decoder_model_name, feature_name)
     return gridfs.GridFS(DB, name)
 
-def get_metric_ready_result(results):
+def get_metric_ready_result(results, desired_order=decoder_models.ImageSet1_inds):
+
     test_split = np.array(results['splits'][0][0]['test'])
-    new_order = np.argsort(test_split)
-    wrong = np.squeeze(np.array(results['split_results'][0]['test_errors']))
-    correct = wrong[new_order]
-    return correct
+    new_order = reorder_to(test_split, desired_order)
+    probs = results['split_results'][0].get('probabilities')
+    if probs is None:
+        correct = np.squeeze(np.array(results['split_results'][0]['test_errors']))
+        correct = correct[new_order]
+        return correct
+    else:
+        return probs[new_order]
 
 
 def store_compute_metric_results(F, meta, eval_config, fs, additional_info):
@@ -85,7 +113,7 @@ def store_compute_metric_results(F, meta, eval_config, fs, additional_info):
     :param additional_info: Additional info about this classifier experiment
     :return: tuple of results from compute_metric_base and the id of the record stored
     """
-    results = compute_metric_base(F, meta, eval_config, return_splits=True)
+    results = compute_metric_base(F, meta, eval_config, return_splits=True, attach_models=True)
     additional_info['eval_config'] = SONify(copy.deepcopy(eval_config))
     blob = cPickle.dumps(results, protocol=cPickle.HIGHEST_PROTOCOL)
     M = get_metric_ready_result(results)

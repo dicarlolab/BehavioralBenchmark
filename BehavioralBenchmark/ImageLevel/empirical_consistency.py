@@ -56,7 +56,7 @@ def get_human_data_densely_sampled():
     assert human_matrix.shape == (128, 2, n_workers)
     human_individuals = deepcopy(human_matrix)
     human_reps = np.concatenate((human_matrix[:, 0, :], human_matrix[:, 1, :]), 1)
-    return human_reps, human_individuals
+    return human_reps, human_individuals, raw_data_with_rep
 
 #if len(M.shape) == 1:
 #    assert len(M) == get_human_data_densely_sampled()[0].shape[0] == get_human_data_densely_sampled()[1].shape[0]
@@ -125,7 +125,7 @@ def metric(x, y):
 
 def split_half_reps(x, rng):
 
-    # Splits the X into two columns and retrun the mean of each split
+    # Splits the X into two columns and return the mean of each split
     n_reps = x.shape[1]
     shuffrange = range(n_reps)
     rng.shuffle(shuffrange)

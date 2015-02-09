@@ -39,6 +39,16 @@ def get_decoder_model_by_name(decoder_model_name):
     if decoder_model_name == 'LogisticRegressionModel':
         model = get_decoder_model_by_name('StandardModel')
         model['metric_kwargs']['model_type'] = 'linear_model.LogisticRegression'
+        model['metric_kwargs']['probabilities'] = True
         return model
+
+    if decoder_model_name == 'SVMModel':
+        model = get_decoder_model_by_name('StandardModel')
+        model['metric_kwargs']['model_type'] = 'svm.SVC'
+        model['metric_kwargs']['model_kwargs']['kernel'] = 'linear'
+        model['metric_kwargs']['model_kwargs']['probability'] = True
+        model['metric_kwargs']['probabilities'] = True
+        return model
+
     else:
         raise ValueError, 'Model not recognized'
