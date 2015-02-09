@@ -90,7 +90,7 @@ def get_gridfs(decoder_model_name, feature_name):
     name = get_name(decoder_model_name, feature_name)
     return gridfs.GridFS(DB, name)
 
-def get_metric_ready_result(results, meta, desired_order=decoder_models.ImageSet1_inds) :
+def get_metric_ready_result(results, meta, desired_order=decoder_models.ImageSet1_inds):
 
     test_split = np.array(results['splits'][0][0]['test'])
     new_order = reorder_to(test_split, desired_order)
