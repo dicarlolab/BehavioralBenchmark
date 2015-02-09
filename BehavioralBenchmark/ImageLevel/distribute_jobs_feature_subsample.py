@@ -37,5 +37,7 @@ for feature_split in feature_splits:
         # Submit a job to slurm that runs store_feature_results on the named features
         time.sleep(.2)
         feature_split = ','.join(str(ind) for ind in feature_split)
-        command = 'sbatch -n 1 --mem=5000 run_feature_subsample.sh %s %s'%(feature_name, feature_split)
+        command = 'sbatch -n 1 --mem=5000 run_feature_subsample.sh %s %s %s'%(feature_name,
+                                                                              feature_split,
+                                                                              decoder_model_name)
         os.system(command)

@@ -9,7 +9,7 @@ import pymongo as pm
 
 feature_name = sys.argv[1]
 
-decoder_model_name = 'StandardModel' # Can make this an option later
+decoder_model_name = sys.argv[3] # Can make this an option later
 
 feature_split = [int(ind) for ind in sys.argv[2].split(',')]
 
@@ -17,7 +17,7 @@ feature_split = [int(ind) for ind in sys.argv[2].split(',')]
 
 features, meta = feature_loader.get_features_by_name(feature_name)
 
-# For now, this always uses the standard decoder model, but this can be reconfigured easily
+#Load decoder model from name
 
 decoder_model = decoder_models.get_decoder_model_by_name(decoder_model_name)
 
