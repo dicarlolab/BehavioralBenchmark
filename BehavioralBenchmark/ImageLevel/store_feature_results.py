@@ -90,7 +90,7 @@ def get_gridfs(decoder_model_name, feature_name):
     name = get_name(decoder_model_name, feature_name)
     return gridfs.GridFS(DB, name)
 
-def get_metric_ready_result(results, desired_order=decoder_models.ImageSet1_inds):
+def get_metric_ready_result(results, meta, desired_order=decoder_models.ImageSet1_inds) :
 
     test_split = np.array(results['splits'][0][0]['test'])
     new_order = reorder_to(test_split, desired_order)
@@ -100,7 +100,13 @@ def get_metric_ready_result(results, desired_order=decoder_models.ImageSet1_inds
         correct = correct[new_order]
         return correct
     else:
-        return probs[new_order]
+        labels = meta['category'][results['splits'][0][0]['test']]
+        label_to_Y = {cat: i for i, cat in enumerate(results['split_results'][0]['labelset'])}
+        Y = [label_to_Y[label] for label in labels]
+        Y_canonical = Y[new_order]
+        probs_canonical = probs[new_order]
+        correct_class_prob = np.array([probs[y] for y, probs in zip(Y_canonical, probs_canonical)])
+        return correct_class_prob
 
 
 def store_compute_metric_results(F, meta, eval_config, fs, additional_info):
@@ -116,7 +122,7 @@ def store_compute_metric_results(F, meta, eval_config, fs, additional_info):
     results = compute_metric_base(F, meta, eval_config, return_splits=True, attach_models=True)
     additional_info['eval_config'] = SONify(copy.deepcopy(eval_config))
     blob = cPickle.dumps(results, protocol=cPickle.HIGHEST_PROTOCOL)
-    M = get_metric_ready_result(results)
+    M = get_metric_ready_result(results, meta)
     additional_info['metric_ready_result'] = M
     additional_info_SON = SONify(additional_info)
 
