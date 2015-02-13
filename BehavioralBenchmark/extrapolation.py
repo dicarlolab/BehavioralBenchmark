@@ -50,28 +50,16 @@ class NegativeExponentialModel(CurveFitModel):
         return A*np.exp(B*x) + C
 
 
-class LogarithmicModel(CurveFitModel):
-    initial_params = [0.1, 0.1]
-    def evaluate(self, x, A, C):
-        return A * np.log(x) +C
-
-
-class ShiftedLogarithmicModel(CurveFitModel):
-    initial_params = [0.1, 0.1]
-    def evaluate(self, x, A, C):
-        return A*np.log(x + 1) + C
-
-
-class ScaledAndShiftedLogarithmicModel(CurveFitModel):
-    initial_params = [0.1, 0.1, 0.1]
-    def evaluate(self, x, A, B, C):
-        return A * np.log(B*x+1) + C
-
-
 class HaMagicModel(CurveFitModel):
     initial_params = [1, -1, 1]
     def evaluate(self, x, A, B, C):
         return A / np.sqrt(1. + C * np.power(x, B))
+
+
+class HaMagicModelBounded(CurveFitModel):
+    initial_params = [-1, 1]
+    def evaluate(self, x, B, C):
+        return 1 / np.sqrt(1. + C * np.power(x, B))
 
 
 
