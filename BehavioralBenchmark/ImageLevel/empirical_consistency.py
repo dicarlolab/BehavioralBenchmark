@@ -109,7 +109,7 @@ def normalized_human_to_pool_consistency(human_individuals):
         consistencies_empirical = [metric(rep0_trials, rep0_pool), metric(rep1_trials, rep1_pool)]
         noise_level.append(np.sqrt(metric(rep0_pool, rep1_pool) * metric(rep0_trials, rep1_trials)))
 
-        assert rep0_pool.shape == (128,)
+        #assert rep0_pool.shape == (128,)
         individual_to_pool_empirical.extend(consistencies_empirical)
 
     normalized_humans = []
