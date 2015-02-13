@@ -9,10 +9,10 @@ inds = []
 
 rng = np.random.RandomState(0)
 for obj in np.unique(dataset.meta['obj']):
-    var3_obj = lambda x: x['obj'] == obj and x['var'] == 'V3'
-    var3_obj_inds = np.ravel(np.argwhere(map(var3_obj, meta)))
-    four_obj_inds = rng.choice(var3_obj_inds, 8)
-    inds.extend(four_obj_inds)
+    var6_obj = lambda x: x['obj'] == obj and x['var'] == 'V6'
+    var6_obj_inds = np.ravel(np.argwhere(map(var6_obj, meta)))
+    eight_obj_inds = rng.choice(var6_obj_inds, 8, replace=False)
+    inds.extend(eight_obj_inds)
 
 def test_inds(inds):
     assert len(inds) == 512
@@ -24,6 +24,9 @@ def test_inds(inds):
     assert len(object_count.keys()) == 64
     for obj in object_count.keys():
         assert object_count[obj] == 8
+    print np.unique(inds).shape[0]
+    print sorted(list(inds))
+    assert np.unique(inds).shape[0] == 512
 
 test_inds(inds)
 INDS = inds
