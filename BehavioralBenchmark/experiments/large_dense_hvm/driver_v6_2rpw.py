@@ -8,7 +8,7 @@ import random as rand
 from copy import deepcopy
 
 #REPEATS_PER_QE_IMG = 4
-ACTUAL_TRIALS_PER_HIT = 64*2*2
+ACTUAL_TRIALS_PER_HIT = 64*8*2 # Objects times images per object times rep per image
 LEARNING_PERIOD = 16
 
 #repeat_inds = [3440, 3282, 3321, 3802, 5000, 3202, 4041, 4200]
@@ -150,11 +150,11 @@ def get_exp(sandbox=True, dummy_upload=True):
     #get inds and practice_inds from file
     inds = list(np.load('inds.npy'))
     practice_inds = list(np.load('practice_inds.npy'))
-    assert len(inds) == 128
+    assert len(inds) == 512
     inds = inds*n_repeats
 
     def test_inds(inds,n_repeats, practice_inds):
-        assert len(inds) == 128*n_repeats
+        assert len(inds) == 512*n_repeats
         #Test that there are 4 per object, and 64 objects
         object_count = {}
         for i in inds:
@@ -165,7 +165,7 @@ def get_exp(sandbox=True, dummy_upload=True):
         print len(object_count.keys())
         assert len(object_count.keys()) == 64
         for obj in object_count.keys():
-            assert object_count[obj] == 2*n_repeats
+            assert object_count[obj] == 8*n_repeats
         assert len(np.unique(inds))*n_repeats == len(inds)
         assert len(set(inds)&set(practice_inds)) == 0
     test_inds(inds,n_repeats, practice_inds)
@@ -197,7 +197,7 @@ def get_exp(sandbox=True, dummy_upload=True):
                  {'category': 'Tables'}],
         'labels': categories}]
 
-    mult =  15 ### 2
+    mult =  100 ### 2
     #ind_repeats = repeat_inds * REPEATS_PER_QE_IMG ###
     #rng = np.random.RandomState(0) ###
     #rng.shuffle(ind_repeats) ###
@@ -222,33 +222,30 @@ def get_exp(sandbox=True, dummy_upload=True):
 
     trials_per_hit = ACTUAL_TRIALS_PER_HIT +16
     exp = SimpleMatchToSampleExperiment(
-            htmlsrc='hvm_dense_smp_v6_2rpw.html',
-            htmldst='hvm_dense_smp_v6_2rpw_n%05d.html',
+            htmlsrc='large_dense_one_worker_per_hit.html',
+            htmldst='large_dense_one_worker_per_hit_n%05d.html',
             tmpdir='tmp_dense_smp_v6_2rpw',
             sandbox=sandbox,
             title='Object recognition --- report what you see',
-            reward=0.15,
+            reward=0.6,
             duration=1500,
             keywords=['neuroscience', 'psychology', 'experiment', 'object recognition'],  # noqa
             description="Complete a visual object recognition task where you report the identity of objects you see. We expect this HIT to take about 10 minutes or less, though you must finish in under 25 minutes.  By completing this HIT, you understand that you are participating in an experiment for the Massachusetts Institute of Technology (MIT) Department of Brain and Cognitive Sciences. You may quit at any time, and you will remain anonymous. Contact the requester with questions or concerns about this experiment.",  # noqa
-            comment="hvm dense sampling of 128 V6 images, 2reps per worker",  # noqa
-            collection_name = 'hvm_dense_smp_v6_2rpw',
+            comment="hvm dense sampling of 512 V6 images, 2reps per worker",  # noqa
+            collection_name = 'large_dense_hvm',
             max_assignments=1,
-            bucket_name='hvm_dense_smp_v6_2rpw',
+            bucket_name='large_dense_hvm',
             trials_per_hit=trials_per_hit,  # 144 + 8x4 repeats + 16 training
             html_data=html_data,
             frame_height_pix=1200,
             othersrc = ['dltk.js', 'dltkexpr.js', 'dltkrsvp.js'],
             additionalrules=additionalrules,
-            log_prefix='hvm_dense_smp_v6_2rpw__'
+            log_prefix='large_dense_hvm__'
             )
     # -- create trials
     exp.createTrials(verbose=1)
     all_ids = [m['Sample']['_id'] for m in exp._trials['imgData']]
     ids = set([str(_) for _ in np.unique(all_ids)])
-    ids_test = set([str(_) for _ in np.load('first_experiment_ids.npy')])
-    assert len(ids) == len(ids_test)
-    assert ids == ids_test
     #exp.createTrials(sampling='with-replacement', verbose=1) ###
     n_total_trials = len(exp._trials['imgFiles'])
     #assert n_total_trials == mult * (len(meta) + 32 + 16) ###
