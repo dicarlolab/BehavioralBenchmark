@@ -25,6 +25,16 @@ div#systemmsg { position:relative; background-color: white; padding: 10px; }
 <script type="text/javascript" src="dltk.js"></script>
 <script type="text/javascript" src="dltkexpr.js"></script>
 <script type="text/javascript" src="dltkrsvp.js"></script>
+<script src="//uniqueturker.myleott.com/lib.js" type="text/javascript"></script>
+<script type="text/javascript">
+(function(){
+    var ut_id = "3bf9abe48195789fdd1585e605e1a88a";
+    if (UTWorkerLimitReached(ut_id)) {
+        document.getElementById('mturk_form').style.display = 'none';
+        document.getElementsByTagName('body')[0].innerHTML = "You have already completed the maximum number of HITs allowed by this requester. Please click 'Return HIT' to avoid any impact on your approval rating.";
+    }
+})();
+</script>
 <script type="text/javascript">
 // -- jshint directives.  DO NOT REMOVE THE FOLLOWING COMMENTS
 /* global $, user_IP, dltk, DetectZoom, winH: true, winW: true, vertical: true, horizontal: true */

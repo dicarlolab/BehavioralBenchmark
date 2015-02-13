@@ -138,7 +138,7 @@ class SimpleMatchToSampleExperiment(Experiment):
 
 
 
-def get_exp(sandbox=True, dummy_upload=True):
+def get_exp(sandbox=True, dummy_upload=True, short_hit=False):
 
     dataset = hvm.HvMWithDiscfade()
     # meta = dataset.meta ###
@@ -204,7 +204,8 @@ def get_exp(sandbox=True, dummy_upload=True):
     #rng = np.random.RandomState(0) ###
     #rng.shuffle(ind_repeats) ###
     ind_learn = practice_inds
-
+    if short_hit:
+        inds = inds[0:10]
     html_data = {
             'response_images': response_images,
             'combs': combs,
@@ -251,7 +252,8 @@ def get_exp(sandbox=True, dummy_upload=True):
     #exp.createTrials(sampling='with-replacement', verbose=1) ###
     n_total_trials = len(exp._trials['imgFiles'])
     #assert n_total_trials == mult * (len(meta) + 32 + 16) ###
-    assert n_total_trials == mult * (len(meta) +  16) ###
+    if not short_hit:
+        assert n_total_trials == mult * (len(meta) +  16) ###
 
     return exp, html_data
 
