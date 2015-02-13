@@ -141,8 +141,8 @@ def empirical_consistency(M, n_boots, get_normalized_humans=True, human_reps=Non
     """
 
     if human_reps is None:
-        human_reps, human_individiduals = get_human_data_densely_sampled()
-        empirical_consistencies = empirical_consistency_to_humans(human_reps, M, n_boots)
+        human_reps, human_individiduals, raw = get_human_data_densely_sampled()
+    empirical_consistencies = empirical_consistency_to_humans(human_reps, M, n_boots)
     if get_normalized_humans:
         normalized_humans_to_pool_consistencies = normalized_human_to_pool_consistency(human_individiduals)
 
