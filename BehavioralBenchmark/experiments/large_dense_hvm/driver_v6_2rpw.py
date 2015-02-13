@@ -166,6 +166,7 @@ def get_exp(sandbox=True, dummy_upload=True):
         assert len(object_count.keys()) == 64
         for obj in object_count.keys():
             assert object_count[obj] == 8*n_repeats
+        print '__________'
         print len(np.unique(inds))
         assert len(np.unique(inds))*n_repeats == len(inds)
         assert len(set(inds)&set(practice_inds)) == 0
