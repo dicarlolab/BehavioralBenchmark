@@ -231,7 +231,7 @@ def get_exp(sandbox=True, dummy_upload=True, short_hit=False):
             sandbox=sandbox,
             title='Object recognition --- report what you see',
             reward=0.6,
-            duration=1500,
+            duration=4500,
             keywords=['neuroscience', 'psychology', 'experiment', 'object recognition'],  # noqa
             description="Complete a visual object recognition task where you report the identity of objects you see. We expect this HIT to take about 10 minutes or less, though you must finish in under 25 minutes.  By completing this HIT, you understand that you are participating in an experiment for the Massachusetts Institute of Technology (MIT) Department of Brain and Cognitive Sciences. You may quit at any time, and you will remain anonymous. Contact the requester with questions or concerns about this experiment.",  # noqa
             comment="hvm dense sampling of 512 V6 images, 2reps per worker",  # noqa
