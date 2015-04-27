@@ -109,7 +109,7 @@ def normalized_human_to_pool_consistency(human_individuals):
         consistencies_empirical = [metric(rep0_trials, rep0_pool), metric(rep1_trials, rep1_pool)]
         noise_level.append(np.sqrt(metric(rep0_pool, rep1_pool) * metric(rep0_trials, rep1_trials)))
 
-        assert rep0_pool.shape == (128,)
+        #assert rep0_pool.shape == (128,)
         individual_to_pool_empirical.extend(consistencies_empirical)
 
     normalized_humans = []
@@ -141,8 +141,8 @@ def empirical_consistency(M, n_boots, get_normalized_humans=True, human_reps=Non
     """
 
     if human_reps is None:
-        human_reps, human_individiduals = get_human_data_densely_sampled()
-        empirical_consistencies = empirical_consistency_to_humans(human_reps, M, n_boots)
+        human_reps, human_individiduals, raw = get_human_data_densely_sampled()
+    empirical_consistencies = empirical_consistency_to_humans(human_reps, M, n_boots)
     if get_normalized_humans:
         normalized_humans_to_pool_consistencies = normalized_human_to_pool_consistency(human_individiduals)
 
