@@ -32,7 +32,7 @@ feature_splits = feature_split(n_features = n_features,
 
 print len(precalculated)/float(len(feature_splits))
 
-for feature_split in feature_splits[-2:]:
+for feature_split in feature_splits:
     if str(feature_split) not in precalculated:
         # Submit a job to slurm that runs store_feature_results on the named features
         time.sleep(1)
