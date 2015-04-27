@@ -102,7 +102,7 @@ def get_metric_ready_result(results, meta, desired_order=decoder_models.ImageSet
     else:
         labels = meta['category'][results['splits'][0][0]['test']]
         label_to_Y = {cat: i for i, cat in enumerate(results['split_results'][0]['labelset'])}
-        Y = [label_to_Y[label] for label in labels]
+        Y = np.array([label_to_Y[label] for label in labels])
         Y_canonical = Y[new_order]
         probs_canonical = probs[new_order]
         correct_class_prob = np.array([probs[y] for y, probs in zip(Y_canonical, probs_canonical)])

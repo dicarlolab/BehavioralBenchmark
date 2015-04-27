@@ -3,6 +3,25 @@ __author__ = 'ardila'
 
 import numpy as np
 
+def feature_split_large(n_features, n_samples, n_bootstrap):
+    """
+    Generate a set of indexes which subsample features of sizen_features
+    start at n_features/2
+    get a linear space of n_samples up to n_features.
+    resample each one n_bootstrap times
+    """
+    assert n_samples <= n_features/2
+    sizes = np.linspace(np.ceil(n_features/2.), n_features, n_samples)
+    all_inds =np.arange(n_features)
+    rng = np.random.RandomState(0)
+    inds = []
+    print sizes
+    for _ in range(n_bootstrap):
+        for size in sizes:
+            rng.shuffle(all_inds)
+            inds.append(list(all_inds[:size]))
+    return inds
+
 def feature_split(n_features, n_samples, n_bootstrap, max_samples_per_size):
     """
     Select indexes up to n_features without replacement or overlap

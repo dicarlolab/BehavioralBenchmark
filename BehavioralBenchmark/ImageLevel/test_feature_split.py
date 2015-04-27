@@ -2,7 +2,7 @@ __author__ = 'ardila'
 from collections import defaultdict
 import unittest
 
-from BehavioralBenchmark.ImageLevel.feature_split import feature_split
+from BehavioralBenchmark.ImageLevel.feature_split import feature_split, feature_split_large
 
 class TestFeatureSplit(unittest.TestCase):
     """
@@ -21,7 +21,6 @@ class TestFeatureSplit(unittest.TestCase):
         test_value = feature_split(6, 2, 1, 2)
         self.assertItemsEqual(answer, test_value)
         test_value = feature_split(6, 2, 2, 2)
-        print test_value
         self.assertItemsEqual(answer_with_bootstrap, test_value)
 
     def test_large_feature_split(self):
@@ -35,6 +34,13 @@ class TestFeatureSplit(unittest.TestCase):
                 else:
                     overlapping = True
                 assert not overlapping, "%s \n %s"%(features[len(fs)], fs)
+
+    def test_feature_split_large(self):
+        answer = [[2, 0, 1], [2, 1, 0, 4, 3]]
+        test = feature_split_large(5, 2, 1)
+        print answer
+        print test
+        self.assertItemsEqual(answer,test) 
 
 if __name__ == '__main__':
     unittest.main()

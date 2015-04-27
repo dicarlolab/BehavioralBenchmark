@@ -32,12 +32,13 @@ feature_splits = feature_split(n_features = n_features,
 
 print len(precalculated)/float(len(feature_splits))
 
-for feature_split in feature_splits:
+for feature_split in feature_splits[-2:]:
     if str(feature_split) not in precalculated:
         # Submit a job to slurm that runs store_feature_results on the named features
-        time.sleep(.2)
+        time.sleep(1)
         feature_split = ','.join(str(ind) for ind in feature_split)
-        command = 'sbatch -n 1 --mem=5000 run_feature_subsample.sh %s %s %s'%(feature_name,
+        command = 'sbatch -n 1 --mem=2000 run_feature_subsample.sh %s %s %s'%(feature_name,
                                                                               feature_split,
                                                                               decoder_model_name)
+        print command
         os.system(command)
