@@ -1,7 +1,7 @@
 __author__ = 'ardila'
 import sys
 import os
-from feature_split import feature_split
+from feature_split import feature_split_large
 from feature_loader import get_size_by_name
 import store_feature_results
 import pymongo as pm
@@ -25,11 +25,9 @@ precalculated = set([str(e['feature_split']) for e in coll.find()])
 
 
 n_features = get_size_by_name(feature_name)
-feature_splits = feature_split(n_features = n_features,
-                               n_samples = 40,
-                               n_bootstrap = 2,
-                               max_samples_per_size = 50)
-
+feature_splits = feature_split_large(n_features = n_features,
+                               n_samples = 20,
+                               n_bootstrap = 3)
 print len(precalculated)/float(len(feature_splits))
 
 for feature_split in feature_splits[-2:]:
